@@ -24,6 +24,10 @@ interface EnvConfig {
   jwt: {
     secret: string;
   };
+  admin: {
+    sku: string;
+    secretCode: string;
+  };
 }
 
 // Validate and export environment variables
@@ -38,7 +42,9 @@ const validateEnv = (): EnvConfig => {
     'STRIPE_SECRET_KEY',
     'STRIPE_WEBHOOK_SECRET',
     'FRONTEND_URL',
-    'JWT_SECRET'
+    'JWT_SECRET',
+    'ADMIN_SKU',
+    'ADMIN_SECRET_CODE'
   ];
 
   for (const varName of requiredVars) {
@@ -66,6 +72,10 @@ const validateEnv = (): EnvConfig => {
     },
     jwt: {
       secret: process.env.JWT_SECRET!,
+    },
+    admin: {
+      sku: process.env.ADMIN_SKU!,
+      secretCode: process.env.ADMIN_SECRET_CODE!,
     },
   };
 };

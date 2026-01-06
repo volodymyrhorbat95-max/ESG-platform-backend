@@ -8,6 +8,7 @@ import { corsOptions } from './middleware/cors.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 // Import routes
+import adminRoutes from './routes/admin.routes.js';
 import skuRoutes from './routes/sku.routes.js';
 import userRoutes from './routes/user.routes.js';
 import transactionRoutes from './routes/transaction.routes.js';
@@ -29,6 +30,7 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
+app.use('/api/admin', adminRoutes); // Admin authentication routes (login, verify, sku)
 app.use('/api', skuRoutes); // Contains /admin/skus and /impact routes
 app.use('/api', userRoutes); // Contains /register and /users routes
 app.use('/api', walletRoutes); // Contains /user/wallet and /merchant/wallet routes
