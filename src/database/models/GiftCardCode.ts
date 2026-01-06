@@ -18,14 +18,14 @@ interface GiftCardCodeCreationAttributes extends Optional<GiftCardCodeAttributes
 
 // Gift Card Code model class
 class GiftCardCode extends Model<GiftCardCodeAttributes, GiftCardCodeCreationAttributes> implements GiftCardCodeAttributes {
-  public id!: string;
-  public code!: string;
-  public skuId!: string;
-  public isRedeemed!: boolean;
-  public redeemedAt?: Date;
-  public redeemedBy?: string;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare code: string;
+  declare skuId: string;
+  declare isRedeemed: boolean;
+  declare redeemedAt?: Date;
+  declare redeemedBy?: string;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 // Initialize Gift Card Code model

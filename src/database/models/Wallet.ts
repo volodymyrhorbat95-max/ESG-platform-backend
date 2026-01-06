@@ -18,14 +18,14 @@ interface WalletCreationAttributes extends Optional<WalletAttributes, 'id' | 'cr
 
 // Wallet model class
 class Wallet extends Model<WalletAttributes, WalletCreationAttributes> implements WalletAttributes {
-  public id!: string;
-  public userId?: string;
-  public merchantId?: string;
-  public totalAccumulated!: number;
-  public totalRedeemed!: number;
-  public currentBalance!: number;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare userId?: string;
+  declare merchantId?: string;
+  declare totalAccumulated: number;
+  declare totalRedeemed: number;
+  declare currentBalance: number;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 // Initialize Wallet model

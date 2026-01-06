@@ -4,7 +4,48 @@ const { v4: uuidv4 } = require('uuid');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface) {
-    // 1. SEED MERCHANTS
+    // 1. SEED PARTNERS
+    const partnerAwareGrowthId = uuidv4();
+    const partnerEcoAlliance = uuidv4();
+    const partnerGreenBizId = uuidv4();
+
+    await queryInterface.bulkInsert('partners', [
+      {
+        id: partnerAwareGrowthId,
+        name: 'Aware Growth',
+        email: 'billing@awaregrowth.com',
+        contact_person: 'Marco Bianchi',
+        phone: '+39 02 1234 5678',
+        billing_address: 'Via Milano 100, 20100 Milan, Italy',
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        id: partnerEcoAlliance,
+        name: 'Eco Alliance Network',
+        email: 'partnerships@ecoalliance.eu',
+        contact_person: 'Sofia Ricci',
+        phone: '+39 06 9876 5432',
+        billing_address: 'Corso Vittorio Emanuele 250, 00186 Rome, Italy',
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        id: partnerGreenBizId,
+        name: 'Green Business Coalition',
+        email: 'info@greenbiz.org',
+        contact_person: 'Alessandro Verdi',
+        phone: '+39 011 5555 7777',
+        billing_address: 'Via Po 45, 10123 Turin, Italy',
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+    ]);
+
+    // 2. SEED MERCHANTS
     const merchantConadId = uuidv4();
     const merchantDeliId = uuidv4();
     const merchantAltromercatoId = uuidv4();
@@ -49,7 +90,7 @@ module.exports = {
       },
     ]);
 
-    // 2. SEED SKUs
+    // 3. SEED SKUs
     const skuCaseAId = uuidv4();
     const skuCaseBLowId = uuidv4();
     const skuCaseBHighId = uuidv4();
@@ -59,6 +100,7 @@ module.exports = {
     const skuCaseD10Id = uuidv4();
     const skuCaseD5Id = uuidv4();
     const skuCaseEId = uuidv4();
+    const skuClaimConadPromoId = uuidv4();
 
     await queryInterface.bulkInsert('skus', [
       {
@@ -196,9 +238,24 @@ module.exports = {
         created_at: new Date(),
         updated_at: new Date(),
       },
+      {
+        id: skuClaimConadPromoId,
+        code: 'CLAIM-CONAD-PROMO',
+        name: 'Conad Promotional Claim',
+        grams_weight: 250,
+        price: 0,
+        payment_mode: 'CLAIM',
+        requires_validation: false,
+        amplivo_threshold: 10,
+        impact_multiplier: 1.0,
+        partner_id: merchantConadId,
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
     ]);
 
-    // 3. SEED GIFT CARD CODES
+    // 4. SEED GIFT CARD CODES
     await queryInterface.bulkInsert('gift_card_codes', [
       { id: uuidv4(), code: 'GC25-AAAA-1111', sku_id: skuCaseD25Id, is_redeemed: false, redeemed_at: null, redeemed_by: null, created_at: new Date(), updated_at: new Date() },
       { id: uuidv4(), code: 'GC25-BBBB-2222', sku_id: skuCaseD25Id, is_redeemed: false, redeemed_at: null, redeemed_by: null, created_at: new Date(), updated_at: new Date() },
@@ -209,7 +266,7 @@ module.exports = {
       { id: uuidv4(), code: 'GC05-GGGG-7777', sku_id: skuCaseD5Id, is_redeemed: false, redeemed_at: null, redeemed_by: null, created_at: new Date(), updated_at: new Date() },
     ]);
 
-    // 4. SEED TEST USERS
+    // 5. SEED TEST USERS
     const userTestId = uuidv4();
     const userTest2Id = uuidv4();
     const userTest3Id = uuidv4();
@@ -262,7 +319,7 @@ module.exports = {
       },
     ]);
 
-    // 5. SEED WALLETS
+    // 6. SEED WALLETS
     await queryInterface.bulkInsert('wallets', [
       { id: uuidv4(), user_id: userTestId, merchant_id: null, total_accumulated: 500, total_redeemed: 0, current_balance: 500, created_at: new Date(), updated_at: new Date() },
       { id: uuidv4(), user_id: userTest2Id, merchant_id: null, total_accumulated: 1500, total_redeemed: 500, current_balance: 1000, created_at: new Date(), updated_at: new Date() },
@@ -273,7 +330,7 @@ module.exports = {
       { id: uuidv4(), user_id: null, merchant_id: merchantGiannettoId, total_accumulated: 100000, total_redeemed: 30000, current_balance: 70000, created_at: new Date(), updated_at: new Date() },
     ]);
 
-    // 6. SEED SAMPLE TRANSACTIONS
+    // 7. SEED SAMPLE TRANSACTIONS
     await queryInterface.bulkInsert('transactions', [
       {
         id: uuidv4(),
@@ -347,5 +404,6 @@ module.exports = {
     await queryInterface.bulkDelete('users', null, {});
     await queryInterface.bulkDelete('skus', null, {});
     await queryInterface.bulkDelete('merchants', null, {});
+    await queryInterface.bulkDelete('partners', null, {});
   },
 };

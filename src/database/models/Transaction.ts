@@ -32,25 +32,25 @@ interface TransactionCreationAttributes extends Optional<TransactionAttributes, 
 
 // Transaction model class
 class Transaction extends Model<TransactionAttributes, TransactionCreationAttributes> implements TransactionAttributes {
-  public id!: string;
-  public userId!: string;
-  public skuId!: string;
-  public merchantId?: string;
-  public partnerId?: string;
-  public orderId?: string;
-  public amount!: number;
-  public calculatedImpact!: number;
-  public paymentStatus!: PaymentStatus;
-  public stripePaymentIntentId?: string;
-  public giftCardCodeId?: string;
-  public amplivoFlag!: boolean;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare userId: string;
+  declare skuId: string;
+  declare merchantId?: string;
+  declare partnerId?: string;
+  declare orderId?: string;
+  declare amount: number;
+  declare calculatedImpact: number;
+  declare paymentStatus: PaymentStatus;
+  declare stripePaymentIntentId?: string;
+  declare giftCardCodeId?: string;
+  declare amplivoFlag: boolean;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 
   // Association properties (added by Sequelize)
-  public readonly user?: any;
-  public readonly sku?: any;
-  public readonly merchant?: any;
+  declare readonly user?: any;
+  declare readonly sku?: any;
+  declare readonly merchant?: any;
 }
 
 // Initialize Transaction model

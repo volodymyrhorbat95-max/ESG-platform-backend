@@ -31,19 +31,19 @@ interface SKUCreationAttributes extends Optional<SKUAttributes, 'id' | 'createdA
 
 // SKU model class
 class SKU extends Model<SKUAttributes, SKUCreationAttributes> implements SKUAttributes {
-  public id!: string;
-  public code!: string;
-  public name!: string;
-  public gramsWeight!: number;
-  public price!: number;
-  public paymentMode!: PaymentMode;
-  public requiresValidation!: boolean;
-  public amplivoThreshold!: number;
-  public impactMultiplier!: number;
-  public partnerId?: string;
-  public isActive!: boolean;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare code: string;
+  declare name: string;
+  declare gramsWeight: number;
+  declare price: number;
+  declare paymentMode: PaymentMode;
+  declare requiresValidation: boolean;
+  declare amplivoThreshold: number;
+  declare impactMultiplier: number;
+  declare partnerId?: string;
+  declare isActive: boolean;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 // Initialize SKU model

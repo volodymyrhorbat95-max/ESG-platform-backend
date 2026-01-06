@@ -5,6 +5,7 @@ import { sequelize } from './sequelize.js';
 import User from './User.js';
 import SKU, { PaymentMode } from './SKU.js';
 import Merchant from './Merchant.js';
+import Partner from './Partner.js';
 import Wallet from './Wallet.js';
 import Transaction, { PaymentStatus } from './Transaction.js';
 import GiftCardCode from './GiftCardCode.js';
@@ -19,9 +20,12 @@ SKU.hasMany(GiftCardCode, { foreignKey: 'skuId', as: 'giftCardCodes' });
 Merchant.hasMany(Transaction, { foreignKey: 'merchantId', as: 'transactions' });
 Merchant.hasOne(Wallet, { foreignKey: 'merchantId', as: 'wallet' });
 
+Partner.hasMany(Transaction, { foreignKey: 'partnerId', as: 'transactions' });
+
 Transaction.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Transaction.belongsTo(SKU, { foreignKey: 'skuId', as: 'sku' });
 Transaction.belongsTo(Merchant, { foreignKey: 'merchantId', as: 'merchant' });
+Transaction.belongsTo(Partner, { foreignKey: 'partnerId', as: 'partner' });
 Transaction.belongsTo(GiftCardCode, { foreignKey: 'giftCardCodeId', as: 'giftCardCode' });
 
 Wallet.belongsTo(User, { foreignKey: 'userId', as: 'user' });
@@ -36,6 +40,7 @@ export {
   User,
   SKU,
   Merchant,
+  Partner,
   Wallet,
   Transaction,
   GiftCardCode,
@@ -48,6 +53,7 @@ export default {
   User,
   SKU,
   Merchant,
+  Partner,
   Wallet,
   Transaction,
   GiftCardCode,

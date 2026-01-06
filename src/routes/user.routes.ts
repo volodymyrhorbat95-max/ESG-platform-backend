@@ -10,6 +10,7 @@ import {
 const router = Router();
 
 // Registration endpoint - POST /api/register
+// Note: 'state' is optional to support MinimalRegistrationForm for CLAIM type SKUs
 router.post(
   '/register',
   validateRequiredFields([
@@ -21,7 +22,6 @@ router.post(
     'city',
     'postalCode',
     'country',
-    'state',
     'termsAccepted',
   ]),
   validateEmail,

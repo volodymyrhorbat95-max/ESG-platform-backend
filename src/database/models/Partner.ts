@@ -1,33 +1,37 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from './sequelize.js';
 
-// Merchant attributes interface
-interface MerchantAttributes {
+// Partner attributes interface
+interface PartnerAttributes {
   id: string;
   name: string;
   email: string;
-  stripeAccountId?: string;
+  contactPerson: string;
+  phone?: string;
+  billingAddress?: string;
   isActive: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-// Merchant creation attributes
-interface MerchantCreationAttributes extends Optional<MerchantAttributes, 'id' | 'createdAt' | 'updatedAt' | 'stripeAccountId' | 'isActive'> {}
+// Partner creation attributes
+interface PartnerCreationAttributes extends Optional<PartnerAttributes, 'id' | 'createdAt' | 'updatedAt' | 'phone' | 'billingAddress' | 'isActive'> {}
 
-// Merchant model class
-class Merchant extends Model<MerchantAttributes, MerchantCreationAttributes> implements MerchantAttributes {
+// Partner model class
+class Partner extends Model<PartnerAttributes, PartnerCreationAttributes> implements PartnerAttributes {
   declare id: string;
   declare name: string;
   declare email: string;
-  declare stripeAccountId?: string;
+  declare contactPerson: string;
+  declare phone?: string;
+  declare billingAddress?: string;
   declare isActive: boolean;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 }
 
-// Initialize Merchant model
-Merchant.init(
+// Initialize Partner model
+Partner.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -37,19 +41,26 @@ Merchant.init(
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
         isEmail: true,
       },
     },
-    stripeAccountId: {
+    contactPerson: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    phone: {
       type: DataTypes.STRING,
       allowNull: true,
-      comment: 'Stripe Connect account ID for split payments',
+    },
+    billingAddress: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     isActive: {
       type: DataTypes.BOOLEAN,
@@ -59,8 +70,8 @@ Merchant.init(
   },
   {
     sequelize,
-    tableName: 'merchants',
+    tableName: 'partners',
   }
 );
 
-export default Merchant;
+export default Partner;

@@ -12,30 +12,30 @@ interface UserAttributes {
   city: string;
   postalCode: string;
   country: string;
-  state: string;
+  state?: string;
   termsAcceptedAt: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 // User creation attributes (optional fields)
-interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'state'> {}
 
 // User model class
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
-  public id!: string;
-  public firstName!: string;
-  public lastName!: string;
-  public email!: string;
-  public dateOfBirth!: Date;
-  public street!: string;
-  public city!: string;
-  public postalCode!: string;
-  public country!: string;
-  public state!: string;
-  public termsAcceptedAt!: Date;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare firstName: string;
+  declare lastName: string;
+  declare email: string;
+  declare dateOfBirth: Date;
+  declare street: string;
+  declare city: string;
+  declare postalCode: string;
+  declare country: string;
+  declare state: string;
+  declare termsAcceptedAt: Date;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
 // Initialize User model
@@ -84,7 +84,7 @@ User.init(
     },
     state: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     termsAcceptedAt: {
       type: DataTypes.DATE,

@@ -16,6 +16,8 @@ import walletRoutes from './routes/wallet.routes.js';
 import giftCardRoutes from './routes/giftCard.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import exportRoutes from './routes/export.routes.js';
+import merchantRoutes from './routes/merchant.routes.js';
+import partnerRoutes from './routes/partner.routes.js';
 
 const app = express();
 
@@ -36,6 +38,8 @@ app.use('/api', userRoutes); // Contains /register and /users routes
 app.use('/api', walletRoutes); // Contains /user/wallet and /merchant/wallet routes
 app.use('/api', giftCardRoutes); // Contains /validate-code and /gift-cards routes
 app.use('/api', exportRoutes); // Contains /admin/export routes
+app.use('/api', merchantRoutes); // Contains /admin/merchants and /merchants/:id routes
+app.use('/api/admin/partners', partnerRoutes); // Admin partner management routes
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/wallets', walletRoutes); // Legacy routes with IDs
 app.use('/api/payments', paymentRoutes);
