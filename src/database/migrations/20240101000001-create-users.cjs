@@ -44,7 +44,7 @@ module.exports = {
       },
       state: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       terms_accepted_at: {
         type: Sequelize.DATE,
