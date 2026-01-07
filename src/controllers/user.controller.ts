@@ -55,6 +55,51 @@ class UserController {
       next(error);
     }
   }
+
+  // PUT /api/users/:id - Update user profile
+  async update(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = await userService.updateUser(req.params.id, req.body);
+      res.json({
+        success: true,
+        data: user,
+        message: 'User profile updated successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // DELETE /api/users/:id - Delete user (soft delete)
+  async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      const result = await userService.deleteUser(req.params.id);
+      res.json({
+        success: true,
+        ...result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // GET /api/users/:id/export - Export user data (GDPR)
+  async exportData(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userData = await userService.exportUserData(req.params.id);
+
+      // Set headers for JSON download
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="user_data_${req.params.id}.json"`
+      );
+
+      res.json(userData);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new UserController();

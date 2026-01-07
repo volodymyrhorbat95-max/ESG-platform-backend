@@ -9,13 +9,20 @@ import Partner from './Partner.js';
 import Wallet from './Wallet.js';
 import Transaction, { PaymentStatus } from './Transaction.js';
 import GiftCardCode from './GiftCardCode.js';
+import SKULocalization from './SKULocalization.js';
+import ShareableLink from './ShareableLink.js';
 
 // Define associations
 User.hasMany(Transaction, { foreignKey: 'userId', as: 'transactions' });
 User.hasOne(Wallet, { foreignKey: 'userId', as: 'wallet' });
+User.hasMany(ShareableLink, { foreignKey: 'userId', as: 'shareableLinks' });
 
 SKU.hasMany(Transaction, { foreignKey: 'skuId', as: 'transactions' });
 SKU.hasMany(GiftCardCode, { foreignKey: 'skuId', as: 'giftCardCodes' });
+SKU.hasMany(SKULocalization, { foreignKey: 'skuId', as: 'localizations' });
+
+SKULocalization.belongsTo(SKU, { foreignKey: 'skuId', as: 'sku' });
+ShareableLink.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 Merchant.hasMany(Transaction, { foreignKey: 'merchantId', as: 'transactions' });
 Merchant.hasOne(Wallet, { foreignKey: 'merchantId', as: 'wallet' });
@@ -44,6 +51,8 @@ export {
   Wallet,
   Transaction,
   GiftCardCode,
+  SKULocalization,
+  ShareableLink,
   PaymentMode,
   PaymentStatus,
 };
@@ -57,4 +66,6 @@ export default {
   Wallet,
   Transaction,
   GiftCardCode,
+  SKULocalization,
+  ShareableLink,
 };

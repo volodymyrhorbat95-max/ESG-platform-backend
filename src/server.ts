@@ -18,6 +18,8 @@ import paymentRoutes from './routes/payment.routes.js';
 import exportRoutes from './routes/export.routes.js';
 import merchantRoutes from './routes/merchant.routes.js';
 import partnerRoutes from './routes/partner.routes.js';
+import certificateRoutes from './routes/certificate.routes.js';
+import qrcodeRoutes from './routes/qrcode.routes.js';
 
 const app = express();
 
@@ -43,6 +45,8 @@ app.use('/api/admin/partners', partnerRoutes); // Admin partner management route
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/wallets', walletRoutes); // Legacy routes with IDs
 app.use('/api/payments', paymentRoutes);
+app.use('/api', certificateRoutes); // Certificate generation routes
+app.use('/api', qrcodeRoutes); // QR code generation routes for merchants
 
 // 404 handler - must be after all routes
 app.use(notFoundHandler);

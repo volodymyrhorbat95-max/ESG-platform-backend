@@ -15,7 +15,7 @@ interface CreateTransactionData {
   orderId?: string;
   amount?: number; // For ALLOCATION type
   giftCardCode?: string; // For GIFT_CARD type
-  registrationData: {
+  registrationData?: {
     email: string; // Required for all types
     firstName?: string; // Optional for CLAIM, required for others
     lastName?: string;
@@ -38,8 +38,10 @@ class TransactionService {
     // 2. Find or create user (handle minimal data for CLAIM type)
     let user: User;
     if (data.userId) {
+      // User already registered - just fetch by ID
       user = await userService.getUserById(data.userId);
-    } else {
+    } else if (data.registrationData) {
+      // New user - create based on registration data
       // For CLAIM type, only email is required
       if (sku.paymentMode === PaymentMode.CLAIM) {
         user = await userService.findOrCreateMinimalUser(data.registrationData.email);
@@ -54,6 +56,8 @@ class TransactionService {
         }
         user = await userService.findOrCreateUser(data.registrationData as any);
       }
+    } else {
+      throw new Error('Either userId or registrationData is required');
     }
 
     // 3. Determine transaction amount and impact based on SKU type

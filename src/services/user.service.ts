@@ -15,6 +15,16 @@ interface CreateUserData {
   termsAccepted: boolean;
 }
 
+interface UpdateUserData {
+  firstName?: string;
+  lastName?: string;
+  street?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+  state?: string;
+}
+
 class UserService {
   // Find or create minimal user (CLAIM type - email only)
   async findOrCreateMinimalUser(email: string) {
@@ -97,6 +107,90 @@ class UserService {
     return await User.findAll({
       order: [['createdAt', 'DESC']],
     });
+  }
+
+  // Update user profile
+  async updateUser(id: string, updateData: UpdateUserData) {
+    const user = await User.findByPk(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Only allow updating specific fields
+    // email and dateOfBirth are NOT editable for security/compliance reasons
+    const allowedFields: (keyof UpdateUserData)[] = [
+      'firstName',
+      'lastName',
+      'street',
+      'city',
+      'postalCode',
+      'country',
+      'state',
+    ];
+
+    const filteredUpdates: Partial<UpdateUserData> = {};
+    allowedFields.forEach((field) => {
+      if (updateData[field] !== undefined) {
+        filteredUpdates[field] = updateData[field];
+      }
+    });
+
+    await user.update(filteredUpdates);
+    return user;
+  }
+
+  // Delete user (soft delete - anonymize data)
+  async deleteUser(id: string) {
+    const user = await User.findByPk(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Soft delete: Anonymize user data instead of hard delete
+    // This preserves transaction history while removing PII
+    await user.update({
+      firstName: 'Deleted',
+      lastName: 'User',
+      email: `deleted_${user.id}@anonymized.com`,
+      street: 'Anonymized',
+      city: 'Anonymized',
+      postalCode: '00000',
+      country: 'Anonymized',
+      state: 'Anonymized',
+    });
+
+    return { success: true, message: 'User account deleted and anonymized' };
+  }
+
+  // Export user data (GDPR compliance)
+  async exportUserData(id: string) {
+    const user = await User.findByPk(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Return all user data in structured format for GDPR export
+    return {
+      personalInformation: {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        dateOfBirth: user.dateOfBirth,
+      },
+      address: {
+        street: user.street,
+        city: user.city,
+        postalCode: user.postalCode,
+        state: user.state,
+        country: user.country,
+      },
+      accountInformation: {
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        termsAcceptedAt: user.termsAcceptedAt,
+      },
+    };
   }
 }
 

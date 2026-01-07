@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import merchantController from '../controllers/merchant.controller.js';
+import merchantExportController from '../controllers/merchant-export.controller.js';
 import { validateRequiredFields } from '../middleware/validation.js';
 import { requireAdmin } from '../middleware/adminAuth.js';
 
@@ -18,5 +19,8 @@ router.delete('/admin/merchants/:id', requireAdmin, merchantController.delete);
 
 // Public route for payment flow - Get merchant by ID
 router.get('/merchants/:id', merchantController.getById);
+
+// Merchant ESG report export
+router.get('/merchants/:merchantId/export/esg', merchantExportController.exportESGReport);
 
 export default router;
