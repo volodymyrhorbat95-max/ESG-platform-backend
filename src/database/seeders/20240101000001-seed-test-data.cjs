@@ -90,19 +90,7 @@ module.exports = {
       },
     ]);
 
-    // 3. SEED GLOBAL CONFIG (CURRENT_CSR_PRICE)
-    await queryInterface.bulkInsert('global_config', [
-      {
-        id: uuidv4(),
-        key: 'CURRENT_CSR_PRICE',
-        value: '0.11',
-        description: 'Current price per kilogram of plastic removed (in EUR). Used for dynamic impact calculation in CLAIM, PAY, and GIFT_CARD transactions.',
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-    ]);
-
-    // 4. SEED SKUs
+    // 3. SEED SKUs (Note: GlobalConfig already seeded in migration 007)
     const skuCaseAId = uuidv4();
     const skuCaseBLowId = uuidv4();
     const skuCaseBHighId = uuidv4();
@@ -257,7 +245,7 @@ module.exports = {
       },
     ]);
 
-    // 5. SEED GIFT CARD CODES
+    // 4. SEED GIFT CARD CODES
     await queryInterface.bulkInsert('gift_card_codes', [
       { id: uuidv4(), code: 'GC25-AAAA-1111', sku_id: skuCaseD25Id, is_redeemed: false, redeemed_at: null, redeemed_by: null, created_at: new Date(), updated_at: new Date() },
       { id: uuidv4(), code: 'GC25-BBBB-2222', sku_id: skuCaseD25Id, is_redeemed: false, redeemed_at: null, redeemed_by: null, created_at: new Date(), updated_at: new Date() },
@@ -268,7 +256,7 @@ module.exports = {
       { id: uuidv4(), code: 'GC05-GGGG-7777', sku_id: skuCaseD5Id, is_redeemed: false, redeemed_at: null, redeemed_by: null, created_at: new Date(), updated_at: new Date() },
     ]);
 
-    // 6. SEED TEST USERS
+    // 5. SEED TEST USERS
     const userTestId = uuidv4();
     const userTest2Id = uuidv4();
     const userTest3Id = uuidv4();
@@ -321,7 +309,7 @@ module.exports = {
       },
     ]);
 
-    // 7. SEED WALLETS
+    // 6. SEED WALLETS
     await queryInterface.bulkInsert('wallets', [
       { id: uuidv4(), user_id: userTestId, merchant_id: null, total_accumulated: 500, total_redeemed: 0, current_balance: 500, created_at: new Date(), updated_at: new Date() },
       { id: uuidv4(), user_id: userTest2Id, merchant_id: null, total_accumulated: 1500, total_redeemed: 500, current_balance: 1000, created_at: new Date(), updated_at: new Date() },
@@ -332,7 +320,7 @@ module.exports = {
       { id: uuidv4(), user_id: null, merchant_id: merchantGiannettoId, total_accumulated: 100000, total_redeemed: 30000, current_balance: 70000, created_at: new Date(), updated_at: new Date() },
     ]);
 
-    // 8. SEED SAMPLE TRANSACTIONS
+    // 7. SEED SAMPLE TRANSACTIONS
     await queryInterface.bulkInsert('transactions', [
       {
         id: uuidv4(),
