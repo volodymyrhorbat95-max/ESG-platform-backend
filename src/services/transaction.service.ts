@@ -1,11 +1,13 @@
 // Transaction Service - Business logic for transaction processing
 // Handles ALL 4 SKU types: CLAIM, PAY, GIFT_CARD, ALLOCATION
+// CRITICAL: Impact calculated dynamically using CURRENT_CSR_PRICE from GlobalConfig
 
 import { Transaction, PaymentStatus, SKU, PaymentMode, User, Wallet, GiftCardCode } from '../database/models/index.js';
 import userService from './user.service.js';
 import walletService from './wallet.service.js';
 import giftCardService from './giftCard.service.js';
 import skuService from './sku.service.js';
+import configService from './config.service.js';
 
 interface CreateTransactionData {
   skuCode: string;
@@ -60,24 +62,32 @@ class TransactionService {
       throw new Error('Either userId or registrationData is required');
     }
 
-    // 3. Determine transaction amount and impact based on SKU type
+    // 3. Get current CSR price for dynamic impact calculation
+    const currentCSRPrice = await configService.getCurrentCSRPrice();
+
+    // 4. Determine transaction amount and impact based on SKU type
     let transactionAmount = 0;
-    let calculatedImpact = 0;
+    let calculatedImpact = 0; // in grams
     let paymentStatus = PaymentStatus.NA;
     let giftCardCodeId: string | undefined;
 
     switch (sku.paymentMode) {
       case PaymentMode.CLAIM:
         // Type 1: Prepaid Lot - No payment, instant confirmation
+        // Amount is 0, but impact is calculated from SKU price
         transactionAmount = 0;
-        calculatedImpact = sku.gramsWeight;
+        // Dynamic calculation: price ÷ CURRENT_CSR_PRICE = kg, then × 1000 = grams
+        const claimKg = Number(sku.price) / currentCSRPrice;
+        calculatedImpact = Math.round(claimKg * 1000);
         paymentStatus = PaymentStatus.NA;
         break;
 
       case PaymentMode.PAY:
         // Type 2: Pay-as-you-go - Stripe payment required
         transactionAmount = Number(sku.price);
-        calculatedImpact = sku.gramsWeight;
+        // Dynamic calculation: price ÷ CURRENT_CSR_PRICE = kg, then × 1000 = grams
+        const payKg = transactionAmount / currentCSRPrice;
+        calculatedImpact = Math.round(payKg * 1000);
         paymentStatus = PaymentStatus.PENDING;
         break;
 
@@ -92,21 +102,21 @@ class TransactionService {
         );
         giftCardCodeId = giftCard.id;
         transactionAmount = Number(sku.price);
-        calculatedImpact = sku.gramsWeight;
+        // Dynamic calculation: price ÷ CURRENT_CSR_PRICE = kg, then × 1000 = grams
+        const giftCardKg = transactionAmount / currentCSRPrice;
+        calculatedImpact = Math.round(giftCardKg * 1000);
         paymentStatus = PaymentStatus.COMPLETED; // Paid externally
         break;
 
       case PaymentMode.ALLOCATION:
-        // Type 4: Environmental Allocation - Dynamic calculation
+        // Type 4: Environmental Allocation - Uses impactMultiplier instead of price
         if (!data.amount) {
           throw new Error('Amount is required for allocation type');
         }
         transactionAmount = data.amount;
-        // Calculate impact: amount × multiplier
-        calculatedImpact = skuService.calculateAllocationImpact(
-          data.amount,
-          Number(sku.impactMultiplier)
-        );
+        // Calculate impact: amount × multiplier = kg, then × 1000 = grams
+        const allocationKg = transactionAmount * Number(sku.impactMultiplier);
+        calculatedImpact = Math.round(allocationKg * 1000);
         paymentStatus = PaymentStatus.NA;
         break;
 
@@ -114,13 +124,11 @@ class TransactionService {
         throw new Error(`Unknown payment mode: ${sku.paymentMode}`);
     }
 
-    // 4. Check if should flag for Amplivo
-    const amplivoFlag = skuService.shouldFlagForAmplivo(
-      transactionAmount,
-      Number(sku.amplivoThreshold)
-    );
+    // 5. Check if should flag for Corsair Connect (€10 threshold)
+    // If amount >= corsairThreshold, user gets certified asset + Corsair Connect account
+    const corsairConnectFlag = transactionAmount >= Number(sku.corsairThreshold);
 
-    // 5. Create transaction
+    // 6. Create transaction
     const transaction = await Transaction.create({
       userId: user.id,
       skuId: sku.id,
@@ -131,10 +139,10 @@ class TransactionService {
       calculatedImpact,
       paymentStatus,
       giftCardCodeId,
-      amplivoFlag,
+      corsairConnectFlag,
     });
 
-    // 6. Update wallets (for completed or N/A transactions)
+    // 7. Update wallets (for completed or N/A transactions)
     if (paymentStatus === PaymentStatus.COMPLETED || paymentStatus === PaymentStatus.NA) {
       await walletService.updateWalletBalance(user.id, calculatedImpact, 'user');
       if (data.merchantId) {
@@ -142,7 +150,7 @@ class TransactionService {
       }
     }
 
-    // 7. Return transaction with related data
+    // 8. Return transaction with related data
     return await this.getTransactionById(transaction.id);
   }
 
@@ -166,7 +174,7 @@ class TransactionService {
     userId?: string;
     merchantId?: string;
     partnerId?: string;
-    amplivoFlag?: boolean;
+    corsairConnectFlag?: boolean;
     startDate?: Date;
     endDate?: Date;
   }) {
@@ -174,7 +182,7 @@ class TransactionService {
     if (filters.userId) where.userId = filters.userId;
     if (filters.merchantId) where.merchantId = filters.merchantId;
     if (filters.partnerId) where.partnerId = filters.partnerId;
-    if (filters.amplivoFlag !== undefined) where.amplivoFlag = filters.amplivoFlag;
+    if (filters.corsairConnectFlag !== undefined) where.corsairConnectFlag = filters.corsairConnectFlag;
     if (filters.startDate || filters.endDate) {
       where.createdAt = {};
       if (filters.startDate) where.createdAt.$gte = filters.startDate;

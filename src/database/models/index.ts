@@ -11,6 +11,7 @@ import Transaction, { PaymentStatus } from './Transaction.js';
 import GiftCardCode from './GiftCardCode.js';
 import SKULocalization from './SKULocalization.js';
 import ShareableLink from './ShareableLink.js';
+import GlobalConfig from './GlobalConfig.js';
 
 // Define associations
 User.hasMany(Transaction, { foreignKey: 'userId', as: 'transactions' });
@@ -53,6 +54,7 @@ export {
   GiftCardCode,
   SKULocalization,
   ShareableLink,
+  GlobalConfig,
   PaymentMode,
   PaymentStatus,
 };
@@ -68,4 +70,5 @@ export default {
   GiftCardCode,
   SKULocalization,
   ShareableLink,
+  GlobalConfig,
 };

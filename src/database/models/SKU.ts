@@ -10,15 +10,16 @@ export enum PaymentMode {
 }
 
 // SKU attributes interface
+// CRITICAL: gramsWeight REMOVED - impact is calculated dynamically as (amount ÷ CURRENT_CSR_PRICE)
+// CRITICAL: amplivoThreshold RENAMED to corsairThreshold (service name changed)
 interface SKUAttributes {
   id: string;
   code: string;
   name: string;
-  gramsWeight: number;
   price: number;
   paymentMode: PaymentMode;
   requiresValidation: boolean;
-  amplivoThreshold: number;
+  corsairThreshold: number;
   impactMultiplier: number;
   partnerId?: string;
   isActive: boolean;
@@ -34,11 +35,10 @@ class SKU extends Model<SKUAttributes, SKUCreationAttributes> implements SKUAttr
   declare id: string;
   declare code: string;
   declare name: string;
-  declare gramsWeight: number;
   declare price: number;
   declare paymentMode: PaymentMode;
   declare requiresValidation: boolean;
-  declare amplivoThreshold: number;
+  declare corsairThreshold: number;
   declare impactMultiplier: number;
   declare partnerId?: string;
   declare isActive: boolean;
@@ -58,21 +58,16 @@ SKU.init(
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-      comment: 'SKU code used in URLs (e.g., LOT-01, PASTA-01, GC-25, ACC-01)',
+      comment: 'SKU code used in URLs (e.g., LOT-01, PASTA-01, GC-25EUR, ALLOC-MERCHANT-5)',
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    gramsWeight: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      comment: 'Plastic impact in grams (for fixed-weight SKUs)',
-    },
     price: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
-      comment: 'Price in euros (0 for CLAIM type)',
+      comment: 'Price in euros (0 for CLAIM type). Impact calculated as: amount ÷ CURRENT_CSR_PRICE',
     },
     paymentMode: {
       type: DataTypes.ENUM(...Object.values(PaymentMode)),
@@ -83,24 +78,24 @@ SKU.init(
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
-      comment: 'True for GIFT_CARD type (secret code validation)',
+      comment: 'True for GIFT_CARD type (secret code validation required)',
     },
-    amplivoThreshold: {
+    corsairThreshold: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       defaultValue: 10.00,
-      comment: 'Flag transaction for Amplivo if amount exceeds this value',
+      comment: 'Flag transaction for Corsair Connect if amount >= this value (triggers account creation)',
     },
     impactMultiplier: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       defaultValue: 1.0,
-      comment: 'Multiplier for ALLOCATION type (e.g., 1.6 for amount × 1.6)',
+      comment: 'Multiplier for ALLOCATION type (e.g., 1.6 for amount × 1.6). Standard flows use CURRENT_CSR_PRICE.',
     },
     partnerId: {
       type: DataTypes.UUID,
       allowNull: true,
-      comment: 'Optional partner association',
+      comment: 'Optional partner association for ALLOCATION flow',
     },
     isActive: {
       type: DataTypes.BOOLEAN,
@@ -111,6 +106,7 @@ SKU.init(
   {
     sequelize,
     tableName: 'skus',
+    underscored: true,
   }
 );
 

@@ -90,7 +90,19 @@ module.exports = {
       },
     ]);
 
-    // 3. SEED SKUs
+    // 3. SEED GLOBAL CONFIG (CURRENT_CSR_PRICE)
+    await queryInterface.bulkInsert('global_config', [
+      {
+        id: uuidv4(),
+        key: 'CURRENT_CSR_PRICE',
+        value: '0.11',
+        description: 'Current price per kilogram of plastic removed (in EUR). Used for dynamic impact calculation in CLAIM, PAY, and GIFT_CARD transactions.',
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+    ]);
+
+    // 4. SEED SKUs
     const skuCaseAId = uuidv4();
     const skuCaseBLowId = uuidv4();
     const skuCaseBHighId = uuidv4();
@@ -107,11 +119,10 @@ module.exports = {
         id: skuCaseAId,
         code: 'LOT-CONAD-01',
         name: 'Conad Plastic Neutral Receipt',
-        grams_weight: 500,
         price: 0,
         payment_mode: 'CLAIM',
         requires_validation: false,
-        amplivo_threshold: 10,
+        corsair_threshold: 10,
         impact_multiplier: 1.0,
         partner_id: merchantConadId,
         is_active: true,
@@ -122,11 +133,10 @@ module.exports = {
         id: skuCaseBLowId,
         code: 'ALLOC-MERCHANT-5',
         name: 'Merchant Funded 5€ Allocation',
-        grams_weight: 0,
         price: 5,
         payment_mode: 'ALLOCATION',
         requires_validation: false,
-        amplivo_threshold: 10,
+        corsair_threshold: 10,
         impact_multiplier: 1.6,
         partner_id: merchantDeliId,
         is_active: true,
@@ -137,11 +147,10 @@ module.exports = {
         id: skuCaseBHighId,
         code: 'ALLOC-MERCHANT-15',
         name: 'Merchant Funded 15€ Allocation',
-        grams_weight: 0,
         price: 15,
         payment_mode: 'ALLOCATION',
         requires_validation: false,
-        amplivo_threshold: 10,
+        corsair_threshold: 10,
         impact_multiplier: 1.6,
         partner_id: merchantDeliId,
         is_active: true,
@@ -152,11 +161,10 @@ module.exports = {
         id: skuCaseCLowId,
         code: 'ALLOC-ECOM-01',
         name: 'E-commerce Environmental Allocation',
-        grams_weight: 0,
         price: 0,
         payment_mode: 'ALLOCATION',
         requires_validation: false,
-        amplivo_threshold: 10,
+        corsair_threshold: 10,
         impact_multiplier: 1.6,
         partner_id: merchantAltromercatoId,
         is_active: true,
@@ -167,11 +175,10 @@ module.exports = {
         id: skuCaseCPayId,
         code: 'PASTA-ARTISAN-01',
         name: 'Artisan Pasta Environmental Fee',
-        grams_weight: 250,
         price: 2.5,
         payment_mode: 'PAY',
         requires_validation: false,
-        amplivo_threshold: 10,
+        corsair_threshold: 10,
         impact_multiplier: 1.0,
         partner_id: merchantDeliId,
         is_active: true,
@@ -182,11 +189,10 @@ module.exports = {
         id: skuCaseD25Id,
         code: 'GC-25EUR',
         name: 'Gift Card 25€',
-        grams_weight: 25000,
         price: 25,
         payment_mode: 'GIFT_CARD',
         requires_validation: true,
-        amplivo_threshold: 10,
+        corsair_threshold: 10,
         impact_multiplier: 1.0,
         partner_id: merchantGiannettoId,
         is_active: true,
@@ -197,11 +203,10 @@ module.exports = {
         id: skuCaseD10Id,
         code: 'GC-10EUR',
         name: 'Gift Card 10€',
-        grams_weight: 10000,
         price: 10,
         payment_mode: 'GIFT_CARD',
         requires_validation: true,
-        amplivo_threshold: 10,
+        corsair_threshold: 10,
         impact_multiplier: 1.0,
         partner_id: merchantGiannettoId,
         is_active: true,
@@ -212,11 +217,10 @@ module.exports = {
         id: skuCaseD5Id,
         code: 'GC-5EUR',
         name: 'Gift Card 5€',
-        grams_weight: 5000,
         price: 5,
         payment_mode: 'GIFT_CARD',
         requires_validation: true,
-        amplivo_threshold: 10,
+        corsair_threshold: 10,
         impact_multiplier: 1.0,
         partner_id: merchantGiannettoId,
         is_active: true,
@@ -227,11 +231,10 @@ module.exports = {
         id: skuCaseEId,
         code: 'PROMO-GENERAL',
         name: 'CSR26 General Promotion',
-        grams_weight: 100,
         price: 0,
         payment_mode: 'CLAIM',
         requires_validation: false,
-        amplivo_threshold: 10,
+        corsair_threshold: 10,
         impact_multiplier: 1.0,
         partner_id: null,
         is_active: true,
@@ -242,11 +245,10 @@ module.exports = {
         id: skuClaimConadPromoId,
         code: 'CLAIM-CONAD-PROMO',
         name: 'Conad Promotional Claim',
-        grams_weight: 250,
         price: 0,
         payment_mode: 'CLAIM',
         requires_validation: false,
-        amplivo_threshold: 10,
+        corsair_threshold: 10,
         impact_multiplier: 1.0,
         partner_id: merchantConadId,
         is_active: true,
@@ -255,7 +257,7 @@ module.exports = {
       },
     ]);
 
-    // 4. SEED GIFT CARD CODES
+    // 5. SEED GIFT CARD CODES
     await queryInterface.bulkInsert('gift_card_codes', [
       { id: uuidv4(), code: 'GC25-AAAA-1111', sku_id: skuCaseD25Id, is_redeemed: false, redeemed_at: null, redeemed_by: null, created_at: new Date(), updated_at: new Date() },
       { id: uuidv4(), code: 'GC25-BBBB-2222', sku_id: skuCaseD25Id, is_redeemed: false, redeemed_at: null, redeemed_by: null, created_at: new Date(), updated_at: new Date() },
@@ -266,7 +268,7 @@ module.exports = {
       { id: uuidv4(), code: 'GC05-GGGG-7777', sku_id: skuCaseD5Id, is_redeemed: false, redeemed_at: null, redeemed_by: null, created_at: new Date(), updated_at: new Date() },
     ]);
 
-    // 5. SEED TEST USERS
+    // 6. SEED TEST USERS
     const userTestId = uuidv4();
     const userTest2Id = uuidv4();
     const userTest3Id = uuidv4();
@@ -319,7 +321,7 @@ module.exports = {
       },
     ]);
 
-    // 6. SEED WALLETS
+    // 7. SEED WALLETS
     await queryInterface.bulkInsert('wallets', [
       { id: uuidv4(), user_id: userTestId, merchant_id: null, total_accumulated: 500, total_redeemed: 0, current_balance: 500, created_at: new Date(), updated_at: new Date() },
       { id: uuidv4(), user_id: userTest2Id, merchant_id: null, total_accumulated: 1500, total_redeemed: 500, current_balance: 1000, created_at: new Date(), updated_at: new Date() },
@@ -330,7 +332,7 @@ module.exports = {
       { id: uuidv4(), user_id: null, merchant_id: merchantGiannettoId, total_accumulated: 100000, total_redeemed: 30000, current_balance: 70000, created_at: new Date(), updated_at: new Date() },
     ]);
 
-    // 7. SEED SAMPLE TRANSACTIONS
+    // 8. SEED SAMPLE TRANSACTIONS
     await queryInterface.bulkInsert('transactions', [
       {
         id: uuidv4(),
@@ -344,7 +346,7 @@ module.exports = {
         payment_status: 'n/a',
         stripe_payment_intent_id: null,
         gift_card_code_id: null,
-        amplivo_flag: false,
+        corsair_connect_flag: false,
         created_at: new Date(),
         updated_at: new Date(),
       },
@@ -360,7 +362,7 @@ module.exports = {
         payment_status: 'completed',
         stripe_payment_intent_id: 'pi_test_12345',
         gift_card_code_id: null,
-        amplivo_flag: false,
+        corsair_connect_flag: false,
         created_at: new Date(),
         updated_at: new Date(),
       },
@@ -376,7 +378,7 @@ module.exports = {
         payment_status: 'n/a',
         stripe_payment_intent_id: null,
         gift_card_code_id: null,
-        amplivo_flag: true,
+        corsair_connect_flag: true,
         created_at: new Date(),
         updated_at: new Date(),
       },
@@ -405,5 +407,6 @@ module.exports = {
     await queryInterface.bulkDelete('skus', null, {});
     await queryInterface.bulkDelete('merchants', null, {});
     await queryInterface.bulkDelete('partners', null, {});
+    await queryInterface.bulkDelete('global_config', null, {});
   },
 };

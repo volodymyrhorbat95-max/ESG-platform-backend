@@ -1,16 +1,16 @@
 // SKU Service - Business logic for SKU management
 // Supports all 4 SKU types: CLAIM, PAY, GIFT_CARD, ALLOCATION
+// CRITICAL: gramsWeight removed - impact calculated dynamically using CURRENT_CSR_PRICE
 
 import { SKU, PaymentMode } from '../database/models/index.js';
 
 interface CreateSKUData {
   code: string;
   name: string;
-  gramsWeight: number;
   price: number;
   paymentMode: PaymentMode;
   requiresValidation: boolean;
-  amplivoThreshold?: number;
+  corsairThreshold?: number;
   impactMultiplier?: number;
   partnerId?: string;
 }
@@ -25,7 +25,7 @@ class SKUService {
     try {
       const sku = await SKU.create({
         ...data,
-        amplivoThreshold: data.amplivoThreshold ?? 10,
+        corsairThreshold: data.corsairThreshold ?? 10,
         impactMultiplier: data.impactMultiplier ?? 1.6,
       });
       return sku;
@@ -75,13 +75,13 @@ class SKUService {
     return sku;
   }
 
-  // Calculate impact for ALLOCATION type
+  // Calculate impact for ALLOCATION type (amount × multiplier = kg)
   calculateAllocationImpact(amount: number, multiplier: number): number {
     return amount * multiplier;
   }
 
-  // Check if transaction should be flagged for Amplivo
-  shouldFlagForAmplivo(amount: number, threshold: number): boolean {
+  // Check if transaction should be flagged for Corsair Connect
+  shouldFlagForCorsairConnect(amount: number, threshold: number): boolean {
     return amount >= threshold;
   }
 }

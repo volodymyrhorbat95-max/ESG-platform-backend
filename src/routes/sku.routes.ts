@@ -10,7 +10,7 @@ const router = Router();
 router.post(
   '/admin/skus',
   requireAdmin,
-  validateRequiredFields(['code', 'name', 'gramsWeight', 'price', 'paymentMode', 'requiresValidation']),
+  validateRequiredFields(['code', 'name', 'price', 'paymentMode', 'requiresValidation']),
   validatePaymentMode,
   skuController.create
 );
@@ -27,7 +27,8 @@ router.put('/admin/localizations/:id', requireAdmin, skuLocalizationController.u
 router.delete('/admin/localizations/:id', requireAdmin, skuLocalizationController.deleteLocalization);
 router.get('/admin/locales', requireAdmin, skuLocalizationController.getAvailableLocales);
 
-// Landing page endpoint - Get SKU impact data by code (with optional locale for market-specific data)
-router.get('/impact', skuLocalizationController.getSKUForMarket);
+// Public SKU endpoints - for landing page
+router.get('/skus/code/:code', skuController.getByCode); // Get SKU by code
+router.get('/impact', skuLocalizationController.getSKUForMarket); // Get SKU with localization
 
 export default router;

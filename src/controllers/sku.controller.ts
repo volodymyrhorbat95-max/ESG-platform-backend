@@ -73,15 +73,16 @@ class SKUController {
       const sku = await skuService.getSKUByCode(code);
 
       // Return only impact-relevant data for landing page
+      // CRITICAL: gramsWeight removed - impact calculated dynamically on transaction
       res.json({
         success: true,
         data: {
           code: sku.code,
           name: sku.name,
-          gramsWeight: sku.gramsWeight,
           price: sku.price,
           paymentMode: sku.paymentMode,
           requiresValidation: sku.requiresValidation,
+          corsairThreshold: sku.corsairThreshold,
           impactMultiplier: sku.impactMultiplier,
         },
       });
