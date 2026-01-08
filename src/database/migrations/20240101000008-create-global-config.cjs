@@ -57,6 +57,14 @@ module.exports = {
         created_at: new Date(),
         updated_at: new Date(),
       },
+      {
+        id: uuidv4(),
+        key: 'MASTER_ID',
+        value: 'MARCELLO-MASTER-001',
+        description: 'Marcello Master ID for overall network tracking. Every transaction records this ID for attribution.',
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
     ]);
   },
 

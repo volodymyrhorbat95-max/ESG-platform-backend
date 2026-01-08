@@ -50,6 +50,21 @@ class ConfigService {
   }
 
   /**
+   * Get MASTER_ID - Marcello's ID for overall network tracking
+   * Every transaction must record this ID for attribution
+   * @returns Master ID string
+   */
+  async getMasterId(): Promise<string> {
+    const value = await this.getValue('MASTER_ID');
+
+    if (!value || value.trim() === '') {
+      throw new Error('MASTER_ID is not configured. Please set it in the admin panel.');
+    }
+
+    return value;
+  }
+
+  /**
    * Set configuration value by key (admin only)
    * @param key - Configuration key
    * @param value - New value (stored as string)
@@ -95,7 +110,7 @@ class ConfigService {
     }
 
     // Prevent deletion of critical config
-    const criticalKeys = ['CURRENT_CSR_PRICE', 'PLATFORM_FEE_PERCENTAGE'];
+    const criticalKeys = ['CURRENT_CSR_PRICE', 'PLATFORM_FEE_PERCENTAGE', 'MASTER_ID'];
     if (criticalKeys.includes(key)) {
       throw new Error(`Cannot delete ${key} - this is a critical configuration`);
     }

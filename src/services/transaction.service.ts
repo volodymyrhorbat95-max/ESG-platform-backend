@@ -3,6 +3,7 @@
 // CRITICAL: Impact calculated dynamically using CURRENT_CSR_PRICE from GlobalConfig
 // Formula: impactGrams = (amount / CURRENT_CSR_PRICE) * impactMultiplier * 1000
 
+import { Op } from 'sequelize';
 import { Transaction, SKU, User, GiftCardCode } from '../database/models/index.js';
 import { PaymentMode } from '../database/models/SKU.js';
 import { PaymentStatus } from '../database/models/Transaction.js';
@@ -89,8 +90,9 @@ class TransactionService {
       throw new Error('This SKU is no longer active');
     }
 
-    // 2. Get current CSR price for dynamic impact calculation
+    // 2. Get current CSR price and Master ID for transaction attribution
     const currentCSRPrice = await configService.getCurrentCSRPrice();
+    const masterId = await configService.getMasterId();
 
     // 3. Determine transaction amount based on SKU type
     let transactionAmount = 0;
@@ -220,10 +222,14 @@ class TransactionService {
       giftCardCodeId = giftCard.id;
     }
 
-    // 9. Create transaction
+    // 9. Create transaction with all 3 attribution IDs:
+    // - masterId: Marcello's ID for overall network tracking
+    // - merchantId: The specific business/seller
+    // - partnerId: Who brought the merchant onboard (for royalty calculation)
     const transaction = await Transaction.create({
       userId: user.id,
       skuId: sku.id,
+      masterId,
       merchantId: input.merchantId,
       partnerId: input.partnerId,
       orderId: input.orderId,
@@ -309,9 +315,11 @@ class TransactionService {
 
   /**
    * Get all transactions with optional filters (for admin)
+   * Supports filtering by all 3 attribution IDs: masterId, merchantId, partnerId
    */
   async getAllTransactions(filters: {
     userId?: string;
+    masterId?: string;
     merchantId?: string;
     partnerId?: string;
     corsairConnectFlag?: boolean;
@@ -322,6 +330,7 @@ class TransactionService {
     const where: any = {};
 
     if (filters.userId) where.userId = filters.userId;
+    if (filters.masterId) where.masterId = filters.masterId;
     if (filters.merchantId) where.merchantId = filters.merchantId;
     if (filters.partnerId) where.partnerId = filters.partnerId;
     if (filters.corsairConnectFlag !== undefined) where.corsairConnectFlag = filters.corsairConnectFlag;
@@ -329,8 +338,8 @@ class TransactionService {
 
     if (filters.startDate || filters.endDate) {
       where.createdAt = {};
-      if (filters.startDate) where.createdAt.$gte = filters.startDate;
-      if (filters.endDate) where.createdAt.$lte = filters.endDate;
+      if (filters.startDate) where.createdAt[Op.gte] = filters.startDate;
+      if (filters.endDate) where.createdAt[Op.lte] = filters.endDate;
     }
 
     return await Transaction.findAll({

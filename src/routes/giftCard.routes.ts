@@ -8,6 +8,7 @@ const router = Router();
 router.post('/validate-code', giftCardController.validate);
 
 // Admin gift card management routes (protected)
+router.post('/gift-cards/generate', requireAdmin, giftCardController.generateBulk);
 router.post('/gift-cards/bulk', requireAdmin, giftCardController.createBulk);
 router.get('/gift-cards', requireAdmin, giftCardController.getAll);
 router.get('/gift-cards/sku/:skuId', requireAdmin, giftCardController.getBySKU);

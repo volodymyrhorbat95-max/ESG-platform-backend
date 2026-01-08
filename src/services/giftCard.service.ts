@@ -7,6 +7,11 @@ interface CreateGiftCardCodesData {
   skuId: string;
 }
 
+interface GenerateGiftCardCodesData {
+  quantity: number;
+  skuId: string;
+}
+
 class GiftCardService {
   // Validate gift card code WITHOUT redeeming (Step 2: validation only)
   // This is called when user first enters the code - we verify it's valid but don't mark as used yet
@@ -55,7 +60,46 @@ class GiftCardService {
     return giftCard;
   }
 
-  // Bulk create gift card codes
+  // Generate unique gift card code
+  private generateUniqueCode(skuCode: string, index: number): string {
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const paddedIndex = index.toString().padStart(4, '0');
+    return `${skuCode}-${timestamp}-${random}-${paddedIndex}`;
+  }
+
+  // Bulk generate gift card codes (system generates unique codes)
+  async generateGiftCardCodes(data: GenerateGiftCardCodesData) {
+    // Verify SKU exists
+    const sku = await SKU.findByPk(data.skuId);
+    if (!sku) {
+      throw new Error('SKU not found');
+    }
+
+    if (data.quantity <= 0 || data.quantity > 1000) {
+      throw new Error('Quantity must be between 1 and 1000');
+    }
+
+    // Generate unique codes
+    const generatedCodes: string[] = [];
+    for (let i = 0; i < data.quantity; i++) {
+      generatedCodes.push(this.generateUniqueCode(sku.code, i + 1));
+    }
+
+    // Create codes in database
+    const codes = await Promise.all(
+      generatedCodes.map(code =>
+        GiftCardCode.create({
+          code,
+          skuId: data.skuId,
+        })
+      )
+    );
+
+    return codes;
+  }
+
+  // Bulk create gift card codes (manual codes provided)
   async createGiftCardCodes(data: CreateGiftCardCodesData) {
     // Verify SKU exists
     const sku = await SKU.findByPk(data.skuId);

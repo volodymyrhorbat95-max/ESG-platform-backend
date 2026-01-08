@@ -21,6 +21,7 @@ module.exports = {
       stripe_account_id: {
         type: Sequelize.STRING,
         allowNull: true,
+        comment: 'Stripe Connect account ID for split payments - merchant receives (100% - platform fee)',
       },
       is_active: {
         type: Sequelize.BOOLEAN,

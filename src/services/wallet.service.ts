@@ -1,6 +1,7 @@
 // Wallet Service - Business logic for wallet management
+// CRITICAL: getWalletWithHistory must include SKU association for transaction history display
 
-import { Wallet, User, Merchant, Transaction } from '../database/models/index.js';
+import { Wallet, User, Merchant, Transaction, SKU } from '../database/models/index.js';
 
 type WalletType = 'user' | 'merchant';
 
@@ -49,13 +50,21 @@ class WalletService {
   }
 
   // Get wallet with transaction history
+  // CRITICAL: Includes SKU association for displaying SKU code/name in transaction history table
   async getWalletWithHistory(ownerId: string, type: WalletType) {
     const wallet = await this.findOrCreateWallet(ownerId, type);
 
-    // Get associated transactions
+    // Get associated transactions with SKU data for display
     const where = type === 'user' ? { userId: ownerId } : { merchantId: ownerId };
     const transactions = await Transaction.findAll({
       where,
+      include: [
+        {
+          model: SKU,
+          as: 'sku',
+          attributes: ['id', 'code', 'name', 'paymentMode'],
+        },
+      ],
       order: [['createdAt', 'DESC']],
       limit: 50, // Latest 50 transactions
     });

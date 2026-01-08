@@ -1,6 +1,7 @@
 // Transaction Controller - NO business logic, only HTTP handling
 import { Request, Response, NextFunction } from 'express';
 import transactionService from '../services/transaction.service.js';
+import { PaymentStatus } from '../database/models/Transaction.js';
 
 class TransactionController {
   // POST /api/transactions - Create transaction (handles all 4 SKU types)
@@ -70,13 +71,16 @@ class TransactionController {
   }
 
   // GET /api/transactions - Get all transactions with filters
+  // Supports filtering by all 3 attribution IDs: masterId, merchantId, partnerId
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
       const filters = {
-        userId: req.query.userId as string,
-        merchantId: req.query.merchantId as string,
-        partnerId: req.query.partnerId as string,
-        corsairConnectFlag: req.query.corsairConnectFlag === 'true',
+        userId: req.query.userId as string | undefined,
+        masterId: req.query.masterId as string | undefined,
+        merchantId: req.query.merchantId as string | undefined,
+        partnerId: req.query.partnerId as string | undefined,
+        paymentStatus: req.query.paymentStatus as PaymentStatus | undefined,
+        corsairConnectFlag: req.query.corsairConnectFlag === 'true' ? true : undefined,
         startDate: req.query.startDate ? new Date(req.query.startDate as string) : undefined,
         endDate: req.query.endDate ? new Date(req.query.endDate as string) : undefined,
       };

@@ -60,6 +60,7 @@ Merchant.init(
   {
     sequelize,
     tableName: 'merchants',
+    underscored: true,
   }
 );
 

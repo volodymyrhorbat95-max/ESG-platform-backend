@@ -67,6 +67,7 @@ GiftCardCode.init(
   {
     sequelize,
     tableName: 'gift_card_codes',
+    underscored: true,
   }
 );
 

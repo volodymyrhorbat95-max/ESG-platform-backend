@@ -1,4 +1,4 @@
-// Export Service - Generate Excel/CSV files for Amplivo submission, reconciliation, and impact reports
+// Export Service - Generate Excel/CSV files for Corsair Connect submission, reconciliation, and impact reports
 // CRITICAL: Platform fee percentage comes from GlobalConfig (configurable)
 import * as XLSX from 'xlsx';
 import { Transaction, User, SKU, Merchant, Partner } from '../database/models/index.js';
@@ -11,12 +11,12 @@ interface ExportFilters {
   merchantId?: string;
   partnerId?: string;
   userId?: string;
-  amplivoOnly?: boolean;
+  corsairConnectOnly?: boolean;
 }
 
 class ExportService {
-  // Generate Amplivo export data
-  async generateAmplivoExport(filters: ExportFilters, format: 'xlsx' | 'csv' = 'xlsx') {
+  // Generate Corsair Connect export data
+  async generateCorsairConnectExport(filters: ExportFilters, format: 'xlsx' | 'csv' = 'xlsx') {
     // Log export operation
     console.log(`📊 Export initiated - Format: ${format}, Filters:`, {
       dateRange: filters.startDate && filters.endDate
@@ -25,7 +25,7 @@ class ExportService {
       merchantId: filters.merchantId || 'All merchants',
       partnerId: filters.partnerId || 'All partners',
       userId: filters.userId || 'All users',
-      amplivoOnly: filters.amplivoOnly || false,
+      corsairConnectOnly: filters.corsairConnectOnly || false,
     });
 
     // Build query filters
@@ -46,8 +46,8 @@ class ExportService {
     if (filters.userId) {
       where.userId = filters.userId;
     }
-    if (filters.amplivoOnly) {
-      where.amplivoFlag = true;
+    if (filters.corsairConnectOnly) {
+      where.corsairConnectFlag = true;
     }
 
     // Fetch transactions with all related data

@@ -20,6 +20,7 @@ class MerchantExportService {
     }
 
     // Fetch transactions in period
+    // Note: paymentStatus values are lowercase in database ('completed', 'n/a')
     const transactions = await Transaction.findAll({
       where: {
         merchantId,
@@ -27,7 +28,7 @@ class MerchantExportService {
           [Op.gte]: startDate,
           [Op.lte]: endDate,
         },
-        paymentStatus: ['COMPLETED', 'N/A'],
+        paymentStatus: ['completed', 'n/a'],
       },
       include: [{ model: SKU, as: 'sku' }],
       order: [['createdAt', 'DESC']],

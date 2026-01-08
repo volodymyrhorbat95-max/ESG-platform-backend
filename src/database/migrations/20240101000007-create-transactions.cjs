@@ -29,6 +29,11 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'RESTRICT',
       },
+      master_id: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        comment: 'Marcello Master ID - for overall network tracking and attribution',
+      },
       merchant_id: {
         type: Sequelize.UUID,
         allowNull: true,
@@ -74,6 +79,7 @@ module.exports = {
       stripe_payment_intent_id: {
         type: Sequelize.STRING,
         allowNull: true,
+        comment: 'Stripe payment intent ID for PAY mode - used for webhook status updates',
       },
       gift_card_code_id: {
         type: Sequelize.UUID,
@@ -103,6 +109,7 @@ module.exports = {
 
     await queryInterface.addIndex('transactions', ['user_id']);
     await queryInterface.addIndex('transactions', ['sku_id']);
+    await queryInterface.addIndex('transactions', ['master_id']);
     await queryInterface.addIndex('transactions', ['merchant_id']);
     await queryInterface.addIndex('transactions', ['partner_id']);
     await queryInterface.addIndex('transactions', ['payment_status']);

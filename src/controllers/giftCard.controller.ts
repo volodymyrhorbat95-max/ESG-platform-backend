@@ -20,7 +20,7 @@ class GiftCardController {
     }
   }
 
-  // POST /api/gift-cards/bulk - Bulk create gift card codes
+  // POST /api/gift-cards/bulk - Bulk create gift card codes (manual codes)
   async createBulk(req: Request, res: Response, next: NextFunction) {
     try {
       const codes = await giftCardService.createGiftCardCodes(req.body);
@@ -28,6 +28,28 @@ class GiftCardController {
         success: true,
         data: codes,
         message: `${codes.length} gift card codes created successfully`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // POST /api/gift-cards/generate - Bulk generate gift card codes (system generates unique codes)
+  async generateBulk(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { quantity, skuId } = req.body;
+      if (!quantity || !skuId) {
+        res.status(400).json({
+          success: false,
+          error: 'quantity and skuId are required',
+        });
+        return;
+      }
+      const codes = await giftCardService.generateGiftCardCodes({ quantity, skuId });
+      res.status(201).json({
+        success: true,
+        data: codes,
+        message: `${codes.length} gift card codes generated successfully`,
       });
     } catch (error) {
       next(error);

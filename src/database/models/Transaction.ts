@@ -14,6 +14,7 @@ interface TransactionAttributes {
   id: string;
   userId: string;
   skuId: string;
+  masterId: string; // Marcello's Master ID - for overall network tracking
   merchantId?: string;
   partnerId?: string;
   orderId?: string;
@@ -35,6 +36,7 @@ class Transaction extends Model<TransactionAttributes, TransactionCreationAttrib
   declare id: string;
   declare userId: string;
   declare skuId: string;
+  declare masterId: string;
   declare merchantId?: string;
   declare partnerId?: string;
   declare orderId?: string;
@@ -70,6 +72,11 @@ Transaction.init(
       type: DataTypes.UUID,
       allowNull: false,
       comment: 'Reference to SKU',
+    },
+    masterId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      comment: 'Marcello Master ID - for overall network tracking and attribution',
     },
     merchantId: {
       type: DataTypes.UUID,

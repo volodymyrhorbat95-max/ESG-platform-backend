@@ -7,6 +7,9 @@ const { MERCHANT_IDS } = require('./20240101000002-seed-merchants.cjs');
 const { SKU_IDS } = require('./20240101000003-seed-skus.cjs');
 const { USER_IDS } = require('./20240101000005-seed-users.cjs');
 
+// Master ID - Marcello's ID for overall network tracking
+const MASTER_ID = 'MARCELLO-MASTER-001';
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface) {
@@ -19,6 +22,7 @@ module.exports = {
         id: uuidv4(),
         user_id: USER_IDS.MARIO_ROSSI,
         sku_id: SKU_IDS.LOT_CONAD_01,
+        master_id: MASTER_ID,
         merchant_id: MERCHANT_IDS.CONAD,
         partner_id: null,
         order_id: null,
@@ -37,6 +41,7 @@ module.exports = {
         id: uuidv4(),
         user_id: USER_IDS.GIULIA_BIANCHI,
         sku_id: SKU_IDS.PASTA_ARTISAN_01,
+        master_id: MASTER_ID,
         merchant_id: MERCHANT_IDS.DELI,
         partner_id: null,
         order_id: null,
@@ -52,6 +57,7 @@ module.exports = {
       },
 
       // Case C: ALLOCATION transaction (e-commerce flow, €15 >= threshold)
+      // master_id: Marcello's ID for overall network tracking
       // merchant_id: Altromercato is the merchant
       // partner_id: Eco Alliance is the e-commerce integration partner
       // ALLOCATION uses SPECIAL formula: amount × impactMultiplier × 1000
@@ -59,6 +65,7 @@ module.exports = {
         id: uuidv4(),
         user_id: USER_IDS.GIULIA_BIANCHI,
         sku_id: SKU_IDS.ALLOC_ECOM_01,
+        master_id: MASTER_ID,
         merchant_id: MERCHANT_IDS.ALTROMERCATO,
         partner_id: PARTNER_IDS.ECO_ALLIANCE,
         order_id: 'ORDER-12345',

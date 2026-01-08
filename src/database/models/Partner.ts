@@ -71,6 +71,7 @@ Partner.init(
   {
     sequelize,
     tableName: 'partners',
+    underscored: true,
   }
 );
 

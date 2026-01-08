@@ -3,10 +3,10 @@ import { Request, Response, NextFunction } from 'express';
 import exportService from '../services/export.service.js';
 
 class ExportController {
-  // Generate Amplivo export
-  async exportAmplivo(req: Request, res: Response, next: NextFunction) {
+  // Generate Corsair Connect export
+  async exportCorsairConnect(req: Request, res: Response, next: NextFunction) {
     try {
-      const { startDate, endDate, merchantId, partnerId, userId, amplivoOnly, format } = req.query;
+      const { startDate, endDate, merchantId, partnerId, userId, corsairConnectOnly, format } = req.query;
 
       const filters: any = {};
       if (startDate) filters.startDate = new Date(startDate as string);
@@ -14,13 +14,13 @@ class ExportController {
       if (merchantId) filters.merchantId = merchantId as string;
       if (partnerId) filters.partnerId = partnerId as string;
       if (userId) filters.userId = userId as string;
-      if (amplivoOnly === 'true') filters.amplivoOnly = true;
+      if (corsairConnectOnly === 'true') filters.corsairConnectOnly = true;
 
       const fileFormat = (format as 'xlsx' | 'csv') || 'xlsx';
-      const buffer = await exportService.generateAmplivoExport(filters, fileFormat);
+      const buffer = await exportService.generateCorsairConnectExport(filters, fileFormat);
 
       // Set headers for file download
-      const filename = `amplivo_export_${new Date().toISOString().split('T')[0]}.${fileFormat}`;
+      const filename = `corsair_connect_export_${new Date().toISOString().split('T')[0]}.${fileFormat}`;
       res.setHeader('Content-Type', fileFormat === 'xlsx'
         ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         : 'text/csv');

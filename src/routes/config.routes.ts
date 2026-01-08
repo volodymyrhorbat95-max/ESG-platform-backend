@@ -5,12 +5,15 @@ import { requireAdmin } from '../middleware/adminAuth.js';
 
 const router = Router();
 
+// IMPORTANT: Route order matters! Exact matches must come before parameter routes
+
+// GET /api/config - Get all configuration entries (admin only)
+// Must be defined BEFORE /:key to avoid being caught by parameter route
+router.get('/', requireAdmin, configController.getAll);
+
 // GET /api/config/:key - Get configuration value by key
 // Public endpoint - can read config values (e.g., CURRENT_CSR_PRICE for calculations)
 router.get('/:key', configController.getValue);
-
-// GET /api/config - Get all configuration entries (admin only)
-router.get('/', requireAdmin, configController.getAll);
 
 // PUT /api/config/:key - Update configuration value (admin only)
 router.put('/:key', requireAdmin, configController.setValue);
