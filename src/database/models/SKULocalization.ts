@@ -87,10 +87,11 @@ SKULocalization.init(
   {
     sequelize,
     tableName: 'sku_localizations',
+    underscored: true,
     indexes: [
       {
         unique: true,
-        fields: ['skuId', 'locale'],
+        fields: ['sku_id', 'locale'],
         name: 'sku_locale_unique',
       },
     ],

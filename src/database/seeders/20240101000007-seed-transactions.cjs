@@ -17,7 +17,7 @@ module.exports = {
       // Case A: CLAIM transaction (prepaid lot, no customer payment)
       // The amount represents the prepaid value allocated per claim, NOT customer payment
       // Impact = (amount / CSR_PRICE) * impactMultiplier * 1000 grams
-      // Example: (0.00187 / 0.11) * 1.0 * 1000 = 17 grams
+      // Example: (0.0019 / 0.11) * 1.0 * 1000 = 17.27 grams
       {
         id: uuidv4(),
         user_id: USER_IDS.MARIO_ROSSI,
@@ -26,8 +26,8 @@ module.exports = {
         merchant_id: MERCHANT_IDS.CONAD,
         partner_id: null,
         order_id: null,
-        amount: 0.00187, // Prepaid value per claim from SKU LOT-CONAD-01
-        calculated_impact: 17, // (0.00187 / 0.11) * 1.0 * 1000 = 17 grams
+        amount: '0.0019', // Prepaid value per claim from SKU LOT-CONAD-01 - string for DECIMAL precision
+        calculated_impact: '17.27', // (0.0019 / 0.11) * 1.0 * 1000 = 17.27 grams - string for DECIMAL precision
         payment_status: 'n/a',
         stripe_payment_intent_id: null,
         gift_card_code_id: null,
@@ -45,9 +45,9 @@ module.exports = {
         merchant_id: MERCHANT_IDS.DELI,
         partner_id: null,
         order_id: null,
-        amount: 2.5,
-        // Impact = (2.5 / 0.11) * 1.0 * 1000 ≈ 22727 grams
-        calculated_impact: 22727,
+        amount: '2.5000', // String for DECIMAL precision
+        // Impact = (2.5 / 0.11) * 1.0 * 1000 = 22727.27 grams
+        calculated_impact: '22727.27', // String for DECIMAL precision
         payment_status: 'completed',
         stripe_payment_intent_id: 'pi_test_12345',
         gift_card_code_id: null,
@@ -69,9 +69,9 @@ module.exports = {
         merchant_id: MERCHANT_IDS.ALTROMERCATO,
         partner_id: PARTNER_IDS.ECO_ALLIANCE,
         order_id: 'ORDER-12345',
-        amount: 15,
+        amount: '15.0000', // String for DECIMAL precision
         // ALLOCATION Impact = amount × impactMultiplier × 1000 = 15 × 1.6 × 1000 = 24000 grams (24 kg)
-        calculated_impact: 24000,
+        calculated_impact: '24000.00', // String for DECIMAL precision
         payment_status: 'n/a',
         stripe_payment_intent_id: null,
         gift_card_code_id: null,

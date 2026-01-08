@@ -87,6 +87,7 @@ ShareableLink.init(
   {
     sequelize,
     tableName: 'shareable_links',
+    underscored: true,
     indexes: [
       {
         unique: true,
@@ -94,7 +95,7 @@ ShareableLink.init(
         name: 'shareable_link_token_unique',
       },
       {
-        fields: ['userId'],
+        fields: ['user_id'],
         name: 'shareable_link_user_idx',
       },
     ],

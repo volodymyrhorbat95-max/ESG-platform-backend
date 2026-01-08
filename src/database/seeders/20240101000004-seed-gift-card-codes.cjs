@@ -3,16 +3,16 @@
 // Import SKU IDs for linking gift card codes to their SKUs
 const { SKU_IDS } = require('./20240101000003-seed-skus.cjs');
 
-// Pre-generated UUIDs for consistent seeding
+// Pre-generated UUIDs for consistent seeding (must be valid hex: 0-9, a-f only)
 // These can be used by transaction seeder if needed
 const GIFT_CARD_IDS = {
-  GC25_1: 'gc250001-0001-0001-0001-000000000001',
-  GC25_2: 'gc250002-0002-0002-0002-000000000002',
-  GC25_3: 'gc250003-0003-0003-0003-000000000003',
-  GC10_1: 'gc100001-0001-0001-0001-000000000001',
-  GC10_2: 'gc100002-0002-0002-0002-000000000002',
-  GC05_1: 'gc050001-0001-0001-0001-000000000001',
-  GC05_2: 'gc050002-0002-0002-0002-000000000002',
+  GC25_1: 'ac250001-0001-0001-0001-000000000001',
+  GC25_2: 'ac250002-0002-0002-0002-000000000002',
+  GC25_3: 'ac250003-0003-0003-0003-000000000003',
+  GC10_1: 'ac100001-0001-0001-0001-000000000001',
+  GC10_2: 'ac100002-0002-0002-0002-000000000002',
+  GC05_1: 'ac050001-0001-0001-0001-000000000001',
+  GC05_2: 'ac050002-0002-0002-0002-000000000002',
 };
 
 // Export for use by transaction seeder
