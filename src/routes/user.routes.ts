@@ -11,10 +11,28 @@ import {
 
 const router = Router();
 
-// Registration endpoint - POST /api/register
-// Note: 'state' is optional to support MinimalRegistrationForm for CLAIM type SKUs
+// Registration endpoints - Support 3 levels: minimal, standard, full
+// Frontend calls: /api/users/register, /api/users/register/minimal, etc.
+
+// POST /api/users/register/minimal - Email only (for CLAIM type SKUs)
 router.post(
-  '/register',
+  '/users/register/minimal',
+  validateRequiredFields(['email']),
+  validateEmail,
+  userController.registerMinimal
+);
+
+// POST /api/users/register/standard - Email + Name (for small transactions)
+router.post(
+  '/users/register/standard',
+  validateRequiredFields(['email', 'firstName', 'lastName']),
+  validateEmail,
+  userController.registerStandard
+);
+
+// POST /api/users/register/full - All fields (for 10+ euro transactions)
+router.post(
+  '/users/register/full',
   validateRequiredFields([
     'firstName',
     'lastName',
@@ -29,6 +47,14 @@ router.post(
   validateEmail,
   validateDate('dateOfBirth'),
   validateTermsAcceptance,
+  userController.registerFull
+);
+
+// POST /api/users/register - Generic registration (auto-determines level)
+router.post(
+  '/users/register',
+  validateRequiredFields(['email']),
+  validateEmail,
   userController.register
 );
 

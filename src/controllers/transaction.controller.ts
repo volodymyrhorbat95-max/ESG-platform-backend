@@ -30,6 +30,45 @@ class TransactionController {
     }
   }
 
+  // GET /api/transactions/user/:userId - Get transactions for a user
+  async getByUserId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const transactions = await transactionService.getTransactionsByUserId(req.params.userId);
+      res.json({
+        success: true,
+        data: transactions,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // GET /api/transactions/user/:userId/total-impact - Get user's total impact
+  async getUserTotalImpact(req: Request, res: Response, next: NextFunction) {
+    try {
+      const totalImpact = await transactionService.getUserTotalImpact(req.params.userId);
+      res.json({
+        success: true,
+        data: { totalImpact },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // GET /api/transactions/merchant/:merchantId - Get transactions for a merchant
+  async getByMerchantId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const transactions = await transactionService.getTransactionsByMerchantId(req.params.merchantId);
+      res.json({
+        success: true,
+        data: transactions,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   // GET /api/transactions - Get all transactions with filters
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {

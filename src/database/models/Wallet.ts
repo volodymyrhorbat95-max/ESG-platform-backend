@@ -68,6 +68,7 @@ Wallet.init(
   {
     sequelize,
     tableName: 'wallets',
+    underscored: true,
     validate: {
       eitherUserOrMerchant(this: Wallet) {
         // Use getDataValue to properly access field values in validation

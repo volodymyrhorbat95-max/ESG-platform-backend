@@ -42,23 +42,34 @@ module.exports = {
       partner_id: {
         type: Sequelize.UUID,
         allowNull: true,
+        references: {
+          model: 'partners',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        comment: 'Partner for ALLOCATION type transactions',
       },
       order_id: {
         type: Sequelize.STRING,
         allowNull: true,
+        comment: 'External order ID from partner/merchant system',
       },
       amount: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.DECIMAL(10, 4),
         allowNull: false,
+        comment: 'Transaction amount in euros (4 decimals for precision)',
       },
       calculated_impact: {
         type: Sequelize.DECIMAL(15, 2),
         allowNull: false,
+        comment: 'Impact in grams = (amount / CURRENT_CSR_PRICE) * impactMultiplier * 1000',
       },
       payment_status: {
         type: Sequelize.ENUM('pending', 'completed', 'failed', 'n/a'),
         allowNull: false,
         defaultValue: 'pending',
+        comment: 'pending=awaiting Stripe, completed=paid, failed=error, n/a=CLAIM type',
       },
       stripe_payment_intent_id: {
         type: Sequelize.STRING,
@@ -74,10 +85,11 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
-      amplivo_flag: {
+      corsair_connect_flag: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false,
+        comment: 'True if amount >= corsairThreshold (triggers Corsair Connect account)',
       },
       created_at: {
         type: Sequelize.DATE,
@@ -94,7 +106,7 @@ module.exports = {
     await queryInterface.addIndex('transactions', ['merchant_id']);
     await queryInterface.addIndex('transactions', ['partner_id']);
     await queryInterface.addIndex('transactions', ['payment_status']);
-    await queryInterface.addIndex('transactions', ['amplivo_flag']);
+    await queryInterface.addIndex('transactions', ['corsair_connect_flag']);
     await queryInterface.addIndex('transactions', ['created_at']);
   },
 

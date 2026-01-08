@@ -22,6 +22,7 @@ interface SKUAttributes {
   corsairThreshold: number;
   impactMultiplier: number;
   partnerId?: string;
+  merchantId?: string;
   isActive: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -41,6 +42,7 @@ class SKU extends Model<SKUAttributes, SKUCreationAttributes> implements SKUAttr
   declare corsairThreshold: number;
   declare impactMultiplier: number;
   declare partnerId?: string;
+  declare merchantId?: string;
   declare isActive: boolean;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
@@ -65,9 +67,9 @@ SKU.init(
       allowNull: false,
     },
     price: {
-      type: DataTypes.DECIMAL(10, 2),
+      type: DataTypes.DECIMAL(10, 4),
       allowNull: false,
-      comment: 'Price in euros (0 for CLAIM type). Impact calculated as: amount ÷ CURRENT_CSR_PRICE',
+      comment: 'Price in euros. Impact = price / CURRENT_CSR_PRICE. Use 4 decimals for small amounts like 0.0187',
     },
     paymentMode: {
       type: DataTypes.ENUM(...Object.values(PaymentMode)),
@@ -96,6 +98,11 @@ SKU.init(
       type: DataTypes.UUID,
       allowNull: true,
       comment: 'Optional partner association for ALLOCATION flow',
+    },
+    merchantId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      comment: 'Optional merchant that owns this SKU',
     },
     isActive: {
       type: DataTypes.BOOLEAN,

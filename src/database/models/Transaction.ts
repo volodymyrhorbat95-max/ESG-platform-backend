@@ -22,13 +22,13 @@ interface TransactionAttributes {
   paymentStatus: PaymentStatus;
   stripePaymentIntentId?: string;
   giftCardCodeId?: string;
-  amplivoFlag: boolean;
+  corsairConnectFlag: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 // Transaction creation attributes
-interface TransactionCreationAttributes extends Optional<TransactionAttributes, 'id' | 'createdAt' | 'updatedAt' | 'amplivoFlag'> {}
+interface TransactionCreationAttributes extends Optional<TransactionAttributes, 'id' | 'createdAt' | 'updatedAt' | 'corsairConnectFlag'> {}
 
 // Transaction model class
 class Transaction extends Model<TransactionAttributes, TransactionCreationAttributes> implements TransactionAttributes {
@@ -43,7 +43,7 @@ class Transaction extends Model<TransactionAttributes, TransactionCreationAttrib
   declare paymentStatus: PaymentStatus;
   declare stripePaymentIntentId?: string;
   declare giftCardCodeId?: string;
-  declare amplivoFlag: boolean;
+  declare corsairConnectFlag: boolean;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 
@@ -87,14 +87,14 @@ Transaction.init(
       comment: 'External order reference from partner systems',
     },
     amount: {
-      type: DataTypes.DECIMAL(10, 2),
+      type: DataTypes.DECIMAL(10, 4),
       allowNull: false,
-      comment: 'Transaction amount in euros',
+      comment: 'Transaction amount in euros (4 decimals for precision)',
     },
     calculatedImpact: {
       type: DataTypes.DECIMAL(15, 2),
       allowNull: false,
-      comment: 'Calculated plastic impact in grams',
+      comment: 'Calculated plastic impact in grams (amount / CURRENT_CSR_PRICE * 1000)',
     },
     paymentStatus: {
       type: DataTypes.ENUM(...Object.values(PaymentStatus)),
@@ -111,16 +111,17 @@ Transaction.init(
       allowNull: true,
       comment: 'Reference to redeemed gift card code (for GIFT_CARD type)',
     },
-    amplivoFlag: {
+    corsairConnectFlag: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
-      comment: 'True if transaction exceeds Amplivo threshold',
+      comment: 'True if transaction amount >= corsairThreshold (triggers Corsair Connect account)',
     },
   },
   {
     sequelize,
     tableName: 'transactions',
+    underscored: true,
   }
 );
 
