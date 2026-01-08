@@ -6,11 +6,14 @@ class PaymentController {
   // POST /api/payments/create-intent - Create payment intent
   async createIntent(req: Request, res: Response, next: NextFunction) {
     try {
-      const { amount, transactionId, merchantStripeAccountId } = req.body;
+      const { amount, transactionId, userId, skuId, partnerId, merchantStripeAccountId } = req.body;
 
       const paymentIntent = await paymentService.createPaymentIntent({
         amount,
         transactionId,
+        userId,
+        skuId,
+        partnerId,
         merchantStripeAccountId,
       });
 

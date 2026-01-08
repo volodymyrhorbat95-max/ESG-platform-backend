@@ -22,7 +22,8 @@ module.exports = {
         updated_at: new Date(),
       },
       // GIULIA_BIANCHI: 1 PAY (22727g) + 1 ALLOCATION (24000g) = 46727g
-      // Note: ALLOCATION uses special formula: amount × 1.6 × 1000 = 15 × 1.6 × 1000 = 24000g
+      // PAY uses standard formula: (2.5 / 0.11) * 1 * 1000 = 22727g
+      // ALLOCATION uses SPECIAL formula: 15 × 1.6 × 1000 = 24000g
       {
         id: uuidv4(),
         user_id: USER_IDS.GIULIA_BIANCHI,

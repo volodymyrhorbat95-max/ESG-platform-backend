@@ -77,6 +77,43 @@ class GiftCardController {
       next(error);
     }
   }
+
+  // DELETE /api/gift-cards/:code - Invalidate a single gift card code (admin action)
+  async invalidate(req: Request, res: Response, next: NextFunction) {
+    try {
+      const giftCard = await giftCardService.invalidateCode(req.params.code);
+      res.json({
+        success: true,
+        data: giftCard,
+        message: 'Gift card code invalidated successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // POST /api/gift-cards/invalidate-bulk - Invalidate multiple gift card codes (admin action)
+  async invalidateBulk(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { codes } = req.body;
+      if (!codes || !Array.isArray(codes) || codes.length === 0) {
+        res.status(400).json({
+          success: false,
+          error: 'codes array is required',
+        });
+        return;
+      }
+      const results = await giftCardService.invalidateCodes(codes);
+      const successCount = results.filter(r => r.success).length;
+      res.json({
+        success: true,
+        data: results,
+        message: `${successCount} of ${codes.length} gift card codes invalidated`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new GiftCardController();

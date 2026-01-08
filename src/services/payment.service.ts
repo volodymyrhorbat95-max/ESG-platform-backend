@@ -1,7 +1,9 @@
 // Payment Service - Stripe integration for split payments
+// CRITICAL: Platform fee percentage comes from GlobalConfig (configurable)
 import Stripe from 'stripe';
 import { env } from '../config/env.js';
 import transactionService from './transaction.service.js';
+import configService from './config.service.js';
 import { PaymentStatus } from '../database/models/index.js';
 
 // Initialize Stripe with secret key from environment
@@ -12,6 +14,9 @@ const stripe = new Stripe(env.stripe.secretKey, {
 interface CreatePaymentIntentData {
   amount: number; // Amount in euros
   transactionId: string;
+  userId: string;
+  skuId: string;
+  partnerId?: string;
   merchantStripeAccountId?: string; // For split payments
 }
 
@@ -21,15 +26,19 @@ class PaymentService {
     try {
       const amountInCents = Math.round(data.amount * 100); // Convert euros to cents
 
-      // Calculate platform fee (example: 10% of transaction)
-      const platformFeeAmount = Math.round(amountInCents * 0.10);
+      // Get platform fee percentage from GlobalConfig (configurable, default 10%)
+      const platformFeePercentage = await configService.getPlatformFeePercentage();
+      const platformFeeAmount = Math.round(amountInCents * platformFeePercentage);
 
-      // Payment intent configuration
+      // Payment intent configuration with required metadata (userId, skuId, partnerId)
       const paymentIntentData: Stripe.PaymentIntentCreateParams = {
         amount: amountInCents,
         currency: 'eur',
         metadata: {
           transactionId: data.transactionId,
+          userId: data.userId,
+          skuId: data.skuId,
+          ...(data.partnerId && { partnerId: data.partnerId }),
         },
         description: `CSR26 Plastic Neutral Transaction - ${data.transactionId}`,
       };

@@ -1,7 +1,7 @@
 // User Service - Business logic for user management
 // Supports 3 registration levels: minimal (email only), standard (email+name), full (all fields)
 
-import { User } from '../database/models/index.js';
+import { User, Transaction, SKU, Merchant } from '../database/models/index.js';
 import { RegistrationLevel } from '../database/models/User.js';
 
 // Input for minimal registration (CLAIM type - email only)
@@ -246,11 +246,36 @@ class UserService {
   }
 
   // Export user data (GDPR compliance)
+  // Includes: Personal information, Address, Account dates, All transaction history
   async exportUserData(id: string) {
     const user = await User.findByPk(id);
     if (!user) {
       throw new Error('User not found');
     }
+
+    // Fetch all transactions for this user (GDPR requirement)
+    const transactions = await Transaction.findAll({
+      where: { userId: id },
+      include: [
+        { model: SKU, as: 'sku', attributes: ['code', 'name', 'paymentMode'] },
+        { model: Merchant, as: 'merchant', attributes: ['name'] },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+
+    // Format transaction history
+    const transactionHistory = transactions.map(t => ({
+      id: t.id,
+      date: t.createdAt,
+      skuCode: t.sku?.code,
+      skuName: t.sku?.name,
+      paymentMode: t.sku?.paymentMode,
+      amount: Number(t.amount),
+      calculatedImpact: Number(t.calculatedImpact),
+      paymentStatus: t.paymentStatus,
+      merchantName: t.merchant?.name || null,
+      partnerId: t.partnerId || null,
+    }));
 
     return {
       personalInformation: {
@@ -274,6 +299,7 @@ class UserService {
         updatedAt: user.updatedAt,
         termsAcceptedAt: user.termsAcceptedAt,
       },
+      transactionHistory: transactionHistory,
     };
   }
 }

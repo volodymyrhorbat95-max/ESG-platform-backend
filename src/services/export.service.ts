@@ -1,7 +1,9 @@
 // Export Service - Generate Excel/CSV files for Amplivo submission, reconciliation, and impact reports
+// CRITICAL: Platform fee percentage comes from GlobalConfig (configurable)
 import * as XLSX from 'xlsx';
 import { Transaction, User, SKU, Merchant, Partner } from '../database/models/index.js';
 import { Op } from 'sequelize';
+import configService from './config.service.js';
 
 interface ExportFilters {
   startDate?: Date;
@@ -211,6 +213,10 @@ class ExportService {
   async generateStripeReconciliationReport(startDate: Date, endDate: Date, format: 'xlsx' | 'csv' = 'xlsx') {
     console.log(`📊 Stripe reconciliation report initiated - Period: ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}`);
 
+    // Get platform fee percentage from GlobalConfig (configurable)
+    const platformFeePercentage = await configService.getPlatformFeePercentage();
+    const platformFeeDisplay = `${(platformFeePercentage * 100).toFixed(0)}%`;
+
     // Fetch all transactions with Stripe payments in the period
     const transactions = await Transaction.findAll({
       where: {
@@ -229,12 +235,9 @@ class ExportService {
       order: [['createdAt', 'DESC']],
     });
 
-    // Calculate platform fee (10%) for each transaction
-    const PLATFORM_FEE_PERCENTAGE = 0.10;
-
     const exportData = transactions.map(t => {
       const amount = Number(t.amount);
-      const platformFee = t.merchant?.stripeAccountId ? amount * PLATFORM_FEE_PERCENTAGE : 0;
+      const platformFee = t.merchant?.stripeAccountId ? amount * platformFeePercentage : 0;
       const merchantPayout = t.merchant?.stripeAccountId ? amount - platformFee : 0;
 
       return {
@@ -245,7 +248,7 @@ class ExportService {
         'SKU Code': t.sku.code,
         'Payment Mode': t.sku.paymentMode,
         'Gross Amount (EUR)': amount.toFixed(2),
-        'Platform Fee (10%)': platformFee.toFixed(2),
+        [`Platform Fee (${platformFeeDisplay})`]: platformFee.toFixed(2),
         'Merchant Payout': merchantPayout.toFixed(2),
         'Merchant Name': t.merchant?.name || 'N/A (Direct)',
         'Merchant Stripe Account': t.merchant?.stripeAccountId || 'N/A',
@@ -257,15 +260,16 @@ class ExportService {
     const totalGross = transactions.reduce((sum, t) => sum + Number(t.amount), 0);
     const totalPlatformFees = transactions
       .filter(t => t.merchant?.stripeAccountId)
-      .reduce((sum, t) => sum + Number(t.amount) * PLATFORM_FEE_PERCENTAGE, 0);
+      .reduce((sum, t) => sum + Number(t.amount) * platformFeePercentage, 0);
     const totalMerchantPayouts = transactions
       .filter(t => t.merchant?.stripeAccountId)
-      .reduce((sum, t) => sum + Number(t.amount) * (1 - PLATFORM_FEE_PERCENTAGE), 0);
+      .reduce((sum, t) => sum + Number(t.amount) * (1 - platformFeePercentage), 0);
     const totalDirectPayments = transactions
       .filter(t => !t.merchant?.stripeAccountId)
       .reduce((sum, t) => sum + Number(t.amount), 0);
 
-    // Add summary rows
+    // Add summary rows (use dynamic platform fee column name)
+    const platformFeeColumn = `Platform Fee (${platformFeeDisplay})`;
     exportData.push({
       'Transaction ID': '',
       'Date': '',
@@ -274,7 +278,7 @@ class ExportService {
       'SKU Code': '',
       'Payment Mode': '',
       'Gross Amount (EUR)': '',
-      'Platform Fee (10%)': '',
+      [platformFeeColumn]: '',
       'Merchant Payout': '',
       'Merchant Name': '',
       'Merchant Stripe Account': '',
@@ -288,7 +292,7 @@ class ExportService {
       'SKU Code': '',
       'Payment Mode': '',
       'Gross Amount (EUR)': totalGross.toFixed(2),
-      'Platform Fee (10%)': totalPlatformFees.toFixed(2),
+      [platformFeeColumn]: totalPlatformFees.toFixed(2),
       'Merchant Payout': totalMerchantPayouts.toFixed(2),
       'Merchant Name': '',
       'Merchant Stripe Account': '',
@@ -302,7 +306,7 @@ class ExportService {
       'SKU Code': '',
       'Payment Mode': '',
       'Gross Amount (EUR)': totalDirectPayments.toFixed(2),
-      'Platform Fee (10%)': 'N/A',
+      [platformFeeColumn]: 'N/A',
       'Merchant Payout': 'N/A',
       'Merchant Name': '',
       'Merchant Stripe Account': '',

@@ -18,7 +18,10 @@ class QRCodeService {
     const { merchantId, skuCode, baseUrl } = options;
 
     // Construct target URL with query parameters
-    const targetUrl = `${baseUrl}?sku=${encodeURIComponent(skuCode)}&merchant=${encodeURIComponent(merchantId)}`;
+    // Format: https://csr26.it/landing?sku=GC-25EUR&merchant=xxx
+    // Remove trailing slash from baseUrl if present
+    const cleanBaseUrl = baseUrl.replace(/\/$/, '');
+    const targetUrl = `${cleanBaseUrl}/landing?sku=${encodeURIComponent(skuCode)}&merchant=${encodeURIComponent(merchantId)}`;
 
     // Generate QR code as data URL (base64 PNG)
     const qrCodeDataUrl = await QRCode.toDataURL(targetUrl, {

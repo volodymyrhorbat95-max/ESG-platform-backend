@@ -237,12 +237,43 @@ class MerchantExportService {
         }
       }
 
-      // Footer
+      // Footer with Control Union branding
+      doc.moveDown(2);
+
+      // Certification statement
       doc
-        .moveDown(2)
+        .strokeColor('#10B981')
+        .lineWidth(1)
+        .moveTo(60, doc.y)
+        .lineTo(doc.page.width - 60, doc.y)
+        .stroke();
+
+      doc.moveDown(0.5);
+
+      doc
+        .fontSize(10)
+        .font('Helvetica-Bold')
+        .fillColor('#047857')
+        .text('Verified by Control Union', { align: 'center' });
+
+      doc.moveDown(0.3);
+
+      doc
+        .fontSize(8)
+        .font('Helvetica')
+        .fillColor('#6B7280')
+        .text(
+          'This environmental impact report is generated in compliance with the CPRS protocol, ' +
+          'verified by Control Union and aligned with EU CSRD (Legislative Decree 125/2024) sustainability reporting directives.',
+          { align: 'center', lineGap: 2 }
+        );
+
+      doc.moveDown(0.5);
+
+      doc
         .fontSize(8)
         .fillColor('#9CA3AF')
-        .text('CSR26 Impact Processor | Certified Environmental Asset Management', { align: 'center' })
+        .text('CSR26 Impact Processor | CPRS Protocol | Control Union Certified', { align: 'center' })
         .text('This report is generated from verified blockchain-backed transaction data', { align: 'center' });
 
       doc.end();

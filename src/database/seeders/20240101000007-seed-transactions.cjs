@@ -54,7 +54,7 @@ module.exports = {
       // Case C: ALLOCATION transaction (e-commerce flow, €15 >= threshold)
       // merchant_id: Altromercato is the merchant
       // partner_id: Eco Alliance is the e-commerce integration partner
-      // ALLOCATION uses SPECIAL formula: amount × impactMultiplier = kg (NOT standard €0.11/kg!)
+      // ALLOCATION uses SPECIAL formula: amount × impactMultiplier × 1000
       {
         id: uuidv4(),
         user_id: USER_IDS.GIULIA_BIANCHI,

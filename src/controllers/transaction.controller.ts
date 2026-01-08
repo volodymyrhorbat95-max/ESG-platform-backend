@@ -76,7 +76,7 @@ class TransactionController {
         userId: req.query.userId as string,
         merchantId: req.query.merchantId as string,
         partnerId: req.query.partnerId as string,
-        amplivoFlag: req.query.amplivoFlag === 'true',
+        corsairConnectFlag: req.query.corsairConnectFlag === 'true',
         startDate: req.query.startDate ? new Date(req.query.startDate as string) : undefined,
         endDate: req.query.endDate ? new Date(req.query.endDate as string) : undefined,
       };

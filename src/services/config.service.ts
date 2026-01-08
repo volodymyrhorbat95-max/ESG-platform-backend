@@ -34,6 +34,22 @@ class ConfigService {
   }
 
   /**
+   * Get PLATFORM_FEE_PERCENTAGE as a number
+   * Used for Stripe split payments - CSR26 takes this percentage, merchant gets the rest
+   * @returns Platform fee as decimal (e.g., 0.10 for 10%)
+   */
+  async getPlatformFeePercentage(): Promise<number> {
+    const value = await this.getValue('PLATFORM_FEE_PERCENTAGE');
+    const percentage = parseFloat(value);
+
+    if (isNaN(percentage) || percentage < 0 || percentage > 1) {
+      throw new Error(`Invalid PLATFORM_FEE_PERCENTAGE value: ${value}. Must be between 0 and 1.`);
+    }
+
+    return percentage;
+  }
+
+  /**
    * Set configuration value by key (admin only)
    * @param key - Configuration key
    * @param value - New value (stored as string)
@@ -79,8 +95,9 @@ class ConfigService {
     }
 
     // Prevent deletion of critical config
-    if (key === 'CURRENT_CSR_PRICE') {
-      throw new Error('Cannot delete CURRENT_CSR_PRICE - this is a critical configuration');
+    const criticalKeys = ['CURRENT_CSR_PRICE', 'PLATFORM_FEE_PERCENTAGE'];
+    if (criticalKeys.includes(key)) {
+      throw new Error(`Cannot delete ${key} - this is a critical configuration`);
     }
 
     await config.destroy();

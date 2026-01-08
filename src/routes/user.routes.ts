@@ -60,10 +60,11 @@ router.post(
 
 // Admin user management routes - PROTECTED with requireAdmin middleware
 router.get('/users', requireAdmin, userController.getAll);
-router.get('/users/:id', requireAdmin, userController.getById);
 router.get('/users/email/:email', requireAdmin, userController.getByEmail);
 
-// User profile management routes - Public (users can manage their own profile)
+// User profile management routes - Users access their own profile by ID
+// Note: GET /users/:id is placed AFTER /users/email/:email to avoid route conflict
+router.get('/users/:id', userController.getById);
 router.put('/users/:id', userController.update);
 router.delete('/users/:id', userController.delete);
 router.get('/users/:id/export', userController.exportData);

@@ -115,6 +115,40 @@ class GiftCardService {
       order: [['createdAt', 'DESC']],
     });
   }
+
+  // Invalidate a gift card code (admin action to disable a code)
+  async invalidateCode(code: string) {
+    const giftCard = await GiftCardCode.findOne({ where: { code } });
+
+    if (!giftCard) {
+      throw new Error('Gift card code not found');
+    }
+
+    // Mark as redeemed without a user - effectively invalidates it
+    // redeemedBy stays undefined to indicate admin invalidation vs user redemption
+    await giftCard.update({
+      isRedeemed: true,
+      redeemedAt: new Date(),
+    });
+
+    return giftCard;
+  }
+
+  // Invalidate multiple gift card codes (bulk invalidation)
+  async invalidateCodes(codes: string[]) {
+    const results = await Promise.all(
+      codes.map(async (code) => {
+        try {
+          const giftCard = await this.invalidateCode(code);
+          return { code, success: true, giftCard };
+        } catch (error: any) {
+          return { code, success: false, error: error.message };
+        }
+      })
+    );
+
+    return results;
+  }
 }
 
 export default new GiftCardService();
