@@ -1,0 +1,59 @@
+'use strict';
+
+const { v4: uuidv4 } = require('uuid');
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up(queryInterface, Sequelize) {
+    const now = new Date();
+
+    await queryInterface.bulkInsert('global_config', [
+      {
+        id: uuidv4(),
+        key: 'CURRENT_CSR_PRICE',
+        value: '0.11',
+        description: 'Current price per kilogram of plastic removal in euros. Used for impact calculation: Impact (kg) = Amount (€) / CURRENT_CSR_PRICE',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: uuidv4(),
+        key: 'MASTER_ID',
+        value: 'MARCELLO-MASTER-001',
+        description: 'Master ID for overall network tracking and attribution',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: uuidv4(),
+        key: 'PLATFORM_FEE_PERCENTAGE',
+        value: '10',
+        description: 'Platform fee percentage for Stripe split payments (PAY mode)',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: uuidv4(),
+        key: 'CORSAIR_THRESHOLD',
+        value: '10.00',
+        description: 'Minimum transaction amount in euros to trigger Corsair Connect flag and certified asset status',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: uuidv4(),
+        key: 'ALLOCATION_MULTIPLIER',
+        value: '1.6',
+        description: 'Impact multiplier for ALLOCATION payment mode. Formula: Impact (kg) = Amount (€) × ALLOCATION_MULTIPLIER',
+        createdAt: now,
+        updatedAt: now,
+      },
+    ], {});
+
+    console.log('✅ Global configuration seeded successfully');
+  },
+
+  async down(queryInterface, Sequelize) {
+    await queryInterface.bulkDelete('global_config', null, {});
+  }
+};
