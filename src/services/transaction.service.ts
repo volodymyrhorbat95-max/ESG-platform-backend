@@ -40,12 +40,23 @@ interface CreateTransactionInput {
 
 class TransactionService {
   /**
-   * Calculate impact in grams
+   * Calculate impact in grams for STANDARD formula (CLAIM, PAY, GIFT_CARD)
    * Formula: (amount / CURRENT_CSR_PRICE) * impactMultiplier * 1000
    * Example: (25 / 0.11) * 1 * 1000 = 227,272 grams
    */
   calculateImpactGrams(amount: number, currentCSRPrice: number, impactMultiplier: number): number {
     const impactKg = (amount / currentCSRPrice) * impactMultiplier;
+    return Math.round(impactKg * 1000);
+  }
+
+  /**
+   * Calculate impact in grams for ALLOCATION formula (special rule)
+   * Formula: amount × impactMultiplier (result in kg, converted to grams)
+   * Example: 5.00 × 1.6 = 8 kg = 8000 grams
+   * This is NOT the standard €0.11/kg formula!
+   */
+  calculateAllocationImpactGrams(amount: number, impactMultiplier: number): number {
+    const impactKg = amount * impactMultiplier;
     return Math.round(impactKg * 1000);
   }
 
@@ -117,13 +128,24 @@ class TransactionService {
         throw new Error(`Unknown payment mode: ${sku.paymentMode}`);
     }
 
-    // 4. Calculate impact in grams using unified formula
-    // Formula: (amount / CURRENT_CSR_PRICE) * impactMultiplier * 1000
-    const calculatedImpact = this.calculateImpactGrams(
-      transactionAmount,
-      currentCSRPrice,
-      Number(sku.impactMultiplier)
-    );
+    // 4. Calculate impact in grams
+    // ALLOCATION uses special formula: amount × impactMultiplier (in kg)
+    // All others use standard formula: (amount / CURRENT_CSR_PRICE) * impactMultiplier * 1000
+    let calculatedImpact: number;
+    if (sku.paymentMode === PaymentMode.ALLOCATION) {
+      // Special ALLOCATION formula: amount × 1.6 = kg (e.g., €5 × 1.6 = 8kg)
+      calculatedImpact = this.calculateAllocationImpactGrams(
+        transactionAmount,
+        Number(sku.impactMultiplier)
+      );
+    } else {
+      // Standard formula for CLAIM, PAY, GIFT_CARD
+      calculatedImpact = this.calculateImpactGrams(
+        transactionAmount,
+        currentCSRPrice,
+        Number(sku.impactMultiplier)
+      );
+    }
 
     // 5. Check if should flag for Corsair Connect (10+ euro threshold)
     const corsairConnectFlag = transactionAmount >= Number(sku.corsairThreshold);

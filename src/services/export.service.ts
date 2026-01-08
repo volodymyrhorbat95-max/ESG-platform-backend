@@ -92,7 +92,7 @@ class ExportService {
       'Partner ID': transaction.partnerId || 'N/A',
       'Order ID': transaction.orderId || 'N/A',
       'Payment Status': transaction.paymentStatus,
-      'Amplivo Flag': transaction.amplivoFlag ? 'YES' : 'NO',
+      'Corsair Connect Flag': transaction.corsairConnectFlag ? 'YES' : 'NO',
       'Stripe Payment Intent': transaction.stripePaymentIntentId || 'N/A',
     }));
 

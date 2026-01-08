@@ -54,6 +54,7 @@ module.exports = {
       // Case C: ALLOCATION transaction (e-commerce flow, €15 >= threshold)
       // merchant_id: Altromercato is the merchant
       // partner_id: Eco Alliance is the e-commerce integration partner
+      // ALLOCATION uses SPECIAL formula: amount × impactMultiplier = kg (NOT standard €0.11/kg!)
       {
         id: uuidv4(),
         user_id: USER_IDS.GIULIA_BIANCHI,
@@ -62,8 +63,8 @@ module.exports = {
         partner_id: PARTNER_IDS.ECO_ALLIANCE,
         order_id: 'ORDER-12345',
         amount: 15,
-        // Impact = (15 / 0.11) * 1.6 * 1000 ≈ 218182 grams
-        calculated_impact: 218182,
+        // ALLOCATION Impact = amount × impactMultiplier × 1000 = 15 × 1.6 × 1000 = 24000 grams (24 kg)
+        calculated_impact: 24000,
         payment_status: 'n/a',
         stripe_payment_intent_id: null,
         gift_card_code_id: null,

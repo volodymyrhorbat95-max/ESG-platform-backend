@@ -8,7 +8,30 @@ interface CreateGiftCardCodesData {
 }
 
 class GiftCardService {
+  // Validate gift card code WITHOUT redeeming (Step 2: validation only)
+  // This is called when user first enters the code - we verify it's valid but don't mark as used yet
+  async validateCode(code: string) {
+    const giftCard = await GiftCardCode.findOne({
+      where: { code },
+      include: [{ model: SKU, as: 'sku' }],
+    });
+
+    // Check if code exists
+    if (!giftCard) {
+      throw new Error('Invalid gift card code');
+    }
+
+    // Check if already redeemed (one-time use enforcement)
+    if (giftCard.isRedeemed) {
+      throw new Error('This gift card code has already been used');
+    }
+
+    // Return the gift card without redeeming - will be redeemed during transaction creation
+    return giftCard;
+  }
+
   // Validate and redeem gift card code (one-time use enforcement)
+  // This is called during transaction creation - we actually mark the code as used
   async validateAndRedeemCode(code: string, userId: string) {
     const giftCard = await GiftCardCode.findOne({ where: { code } });
 
@@ -22,7 +45,7 @@ class GiftCardService {
       throw new Error('This gift card code has already been used');
     }
 
-    // Mark as redeemed
+    // Mark as redeemed with the actual user ID
     await giftCard.update({
       isRedeemed: true,
       redeemedAt: new Date(),

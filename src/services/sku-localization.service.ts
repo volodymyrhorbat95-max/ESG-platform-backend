@@ -81,12 +81,12 @@ class SKULocalizationService {
       name: localization?.localizedName || sku.name,
       description: localization?.localizedDescription || null,
       terminology: localization?.localizedTerminology || null,
-      gramsWeight: sku.gramsWeight,
       price: localization?.localizedPrice || sku.price,
       currency: localization?.currency || 'EUR',
       paymentMode: sku.paymentMode,
       requiresValidation: sku.requiresValidation,
       impactMultiplier: sku.impactMultiplier,
+      corsairThreshold: sku.corsairThreshold,
       locale: localization?.locale || 'en-US',
       hasLocalization: !!localization,
     };

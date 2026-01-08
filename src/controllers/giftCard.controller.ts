@@ -3,15 +3,17 @@ import { Request, Response, NextFunction } from 'express';
 import giftCardService from '../services/giftCard.service.js';
 
 class GiftCardController {
-  // POST /api/gift-cards/validate - Validate gift card code
+  // POST /api/validate-code - Validate gift card code (validation only, no redemption)
+  // Redemption happens during transaction creation to ensure the real user ID is used
   async validate(req: Request, res: Response, next: NextFunction) {
     try {
-      const { code, userId } = req.body;
-      const giftCard = await giftCardService.validateAndRedeemCode(code, userId);
+      const { code } = req.body;
+      // Validate without redeeming - redemption happens in transaction.service.ts
+      const giftCard = await giftCardService.validateCode(code);
       res.json({
         success: true,
         data: giftCard,
-        message: 'Gift card code validated successfully',
+        message: 'Gift card code is valid',
       });
     } catch (error) {
       next(error);

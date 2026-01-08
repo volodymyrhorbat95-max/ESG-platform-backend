@@ -21,14 +21,15 @@ module.exports = {
         created_at: new Date(),
         updated_at: new Date(),
       },
-      // GIULIA_BIANCHI: 1 PAY (22727g) + 1 ALLOCATION (218182g) = 240909g
+      // GIULIA_BIANCHI: 1 PAY (22727g) + 1 ALLOCATION (24000g) = 46727g
+      // Note: ALLOCATION uses special formula: amount × 1.6 × 1000 = 15 × 1.6 × 1000 = 24000g
       {
         id: uuidv4(),
         user_id: USER_IDS.GIULIA_BIANCHI,
         merchant_id: null,
-        total_accumulated: 240909, // PAY: 22727g + ALLOCATION: 218182g
+        total_accumulated: 46727, // PAY: 22727g + ALLOCATION: 24000g
         total_redeemed: 0,
-        current_balance: 240909,
+        current_balance: 46727,
         created_at: new Date(),
         updated_at: new Date(),
       },
