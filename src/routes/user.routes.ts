@@ -65,6 +65,7 @@ router.get('/users/email/:email', requireAdmin, userController.getByEmail);
 // User profile management routes - Users access their own profile by ID
 // Note: GET /users/:id is placed AFTER /users/email/:email to avoid route conflict
 router.get('/users/:id', userController.getById);
+router.put('/users/:id/self', userController.updateSelf); // User self-update (no auth required)
 router.put('/users/:id', requireAdmin, userController.update); // Admin only - edit user profile
 router.delete('/users/:id', requireAdmin, userController.delete); // Admin only - delete user
 router.get('/users/:id/export', userController.exportData);

@@ -211,7 +211,21 @@ class UserController {
     }
   }
 
-  // PUT /api/users/:id - Update user profile
+  // PUT /api/users/:id/self - User self-update (no auth required)
+  async updateSelf(req: Request, res: Response, next: NextFunction) {
+    try {
+      const user = await userService.updateUser(req.params.id, req.body);
+      res.json({
+        success: true,
+        data: user,
+        message: 'User profile updated successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // PUT /api/users/:id - Update user profile (admin only)
   async update(req: Request, res: Response, next: NextFunction) {
     try {
       const user = await userService.updateUser(req.params.id, req.body);
