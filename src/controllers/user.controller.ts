@@ -3,6 +3,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import userService from '../services/user.service.js';
+import authService from '../services/auth.service.js';
 
 class UserController {
   // POST /api/users/register/minimal - Minimal registration (email only)
@@ -17,9 +18,21 @@ class UserController {
       }
 
       const user = await userService.findOrCreateMinimalUser({ email });
+
+      // Generate session token for auto-login
+      const sessionToken = authService.generateSessionToken({
+        id: user.id,
+        email: user.email,
+      });
+
+      console.log(`✅ User registered (minimal): ${user.email} - Auto-login session created`);
+
       res.status(201).json({
         success: true,
-        data: user,
+        data: {
+          user,
+          sessionToken,
+        },
         message: 'User registered successfully (minimal)',
       });
     } catch (error) {
@@ -46,9 +59,20 @@ class UserController {
         termsAccepted: termsAccepted || false,
       });
 
+      // Generate session token for auto-login
+      const sessionToken = authService.generateSessionToken({
+        id: user.id,
+        email: user.email,
+      });
+
+      console.log(`✅ User registered (standard): ${user.email} - Auto-login session created`);
+
       res.status(201).json({
         success: true,
-        data: user,
+        data: {
+          user,
+          sessionToken,
+        },
         message: 'User registered successfully (standard)',
       });
     } catch (error) {
@@ -93,9 +117,20 @@ class UserController {
         termsAccepted: termsAccepted || false,
       });
 
+      // Generate session token for auto-login
+      const sessionToken = authService.generateSessionToken({
+        id: user.id,
+        email: user.email,
+      });
+
+      console.log(`✅ User registered (full): ${user.email} - Auto-login session created`);
+
       res.status(201).json({
         success: true,
-        data: user,
+        data: {
+          user,
+          sessionToken,
+        },
         message: 'User registered successfully (full)',
       });
     } catch (error) {
@@ -156,9 +191,20 @@ class UserController {
         user = await userService.findOrCreateMinimalUser({ email });
       }
 
+      // Generate session token for auto-login
+      const sessionToken = authService.generateSessionToken({
+        id: user.id,
+        email: user.email,
+      });
+
+      console.log(`✅ User registered (auto-level: ${user.registrationLevel}): ${user.email} - Auto-login session created`);
+
       res.status(201).json({
         success: true,
-        data: user,
+        data: {
+          user,
+          sessionToken,
+        },
         message: 'User registered successfully',
       });
     } catch (error) {
