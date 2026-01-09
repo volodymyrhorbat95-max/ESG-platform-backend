@@ -65,6 +65,38 @@ class ConfigService {
   }
 
   /**
+   * Get ALLOCATION_MULTIPLIER for ALLOCATION payment mode
+   * Used in special impact formula: Impact (kg) = Amount (€) × ALLOCATION_MULTIPLIER
+   * @returns Allocation multiplier as number (e.g., 1.6)
+   */
+  async getAllocationMultiplier(): Promise<number> {
+    const value = await this.getValue('ALLOCATION_MULTIPLIER');
+    const multiplier = parseFloat(value);
+
+    if (isNaN(multiplier) || multiplier <= 0) {
+      throw new Error(`Invalid ALLOCATION_MULTIPLIER value: ${value}`);
+    }
+
+    return multiplier;
+  }
+
+  /**
+   * Get CORSAIR_THRESHOLD - Minimum transaction amount for Corsair Connect flag
+   * Transactions >= this amount set corsairConnectFlag = true on user
+   * @returns Threshold amount in euros (e.g., 10.00)
+   */
+  async getCorsairThreshold(): Promise<number> {
+    const value = await this.getValue('CORSAIR_THRESHOLD');
+    const threshold = parseFloat(value);
+
+    if (isNaN(threshold) || threshold <= 0) {
+      throw new Error(`Invalid CORSAIR_THRESHOLD value: ${value}`);
+    }
+
+    return threshold;
+  }
+
+  /**
    * Set configuration value by key (admin only)
    * @param key - Configuration key
    * @param value - New value (stored as string)

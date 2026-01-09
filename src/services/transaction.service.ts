@@ -90,9 +90,11 @@ class TransactionService {
       throw new Error('This SKU is no longer active');
     }
 
-    // 2. Get current CSR price and Master ID for transaction attribution
+    // 2. Get global config values (CSR price, Master ID, thresholds, multipliers)
     const currentCSRPrice = await configService.getCurrentCSRPrice();
     const masterId = await configService.getMasterId();
+    const allocationMultiplier = await configService.getAllocationMultiplier();
+    const corsairThreshold = await configService.getCorsairThreshold();
 
     // 3. Determine transaction amount based on SKU type
     let transactionAmount = 0;
@@ -138,11 +140,11 @@ class TransactionService {
     // 4. Calculate impact in grams - DIFFERENT formulas based on payment mode
     let calculatedImpact: number;
     if (sku.paymentMode === PaymentMode.ALLOCATION) {
-      // ALLOCATION uses SPECIAL formula: amount × impactMultiplier
+      // ALLOCATION uses SPECIAL formula: amount × ALLOCATION_MULTIPLIER (from global config)
       // Example: €5 × 1.6 = 8 kg = 8,000 grams
       calculatedImpact = this.calculateAllocationImpactGrams(
         transactionAmount,
-        Number(sku.impactMultiplier)
+        allocationMultiplier
       );
     } else {
       // CLAIM, PAY, GIFT_CARD use STANDARD formula: amount / CSR_PRICE × multiplier
@@ -154,13 +156,13 @@ class TransactionService {
       );
     }
 
-    // 5. Check if should flag for Corsair Connect (10+ euro threshold)
-    const corsairConnectFlag = transactionAmount >= Number(sku.corsairThreshold);
+    // 5. Check if should flag for Corsair Connect (CORSAIR_THRESHOLD from global config)
+    const corsairConnectFlag = transactionAmount >= corsairThreshold;
 
-    // 6. Determine required registration level
+    // 6. Determine required registration level (using global CORSAIR_THRESHOLD)
     const requiredLevel = this.determineRegistrationLevel(
       transactionAmount,
-      Number(sku.corsairThreshold)
+      corsairThreshold
     );
 
     // 7. Create or find user based on registration level
