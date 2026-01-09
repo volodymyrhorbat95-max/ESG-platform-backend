@@ -24,16 +24,16 @@ module.exports = {
     if (lotConad) {
       localizations.push({
         id: uuidv4(),
-        skuId: lotConad.id,
+        sku_id: lotConad.id,
         locale: 'de-DE',
-        localizedName: 'Conad Lot-Anspruch 1:1',
-        localizedDescription: 'Conad Supermarkt hat für Sie Plastikentfernung vorausbezahlt. Ihr Einkauf trägt zur zertifizierten Umweltwirkung bei.',
-        localizedTerminology: 'Umweltvermögen',
+        localized_name: 'Conad Lot-Anspruch 1:1',
+        localized_description: 'Conad Supermarkt hat für Sie Plastikentfernung vorausbezahlt. Ihr Einkauf trägt zur zertifizierten Umweltwirkung bei.',
+        localized_terminology: 'Umweltvermögen',
         currency: 'EUR',
-        localizedPrice: parseFloat(lotConad.price),
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: parseFloat(lotConad.price),
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
@@ -42,16 +42,16 @@ module.exports = {
     if (gc25) {
       localizations.push({
         id: uuidv4(),
-        skuId: gc25.id,
+        sku_id: gc25.id,
         locale: 'de-DE',
-        localizedName: 'Geschenkkarte 25€',
-        localizedDescription: 'Lösen Sie Ihren geheimen Code ein und erhalten Sie ein zertifiziertes Umweltvermögen für 227,3 kg entferntes Plastik.',
-        localizedTerminology: 'Zertifiziertes Umweltvermögen',
+        localized_name: 'Geschenkkarte 25€',
+        localized_description: 'Lösen Sie Ihren geheimen Code ein und erhalten Sie ein zertifiziertes Umweltvermögen für 227,3 kg entferntes Plastik.',
+        localized_terminology: 'Zertifiziertes Umweltvermögen',
         currency: 'EUR',
-        localizedPrice: 25.00,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 25.00,
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
@@ -60,16 +60,16 @@ module.exports = {
     if (alloc5) {
       localizations.push({
         id: uuidv4(),
-        skuId: alloc5.id,
+        sku_id: alloc5.id,
         locale: 'de-DE',
-        localizedName: 'Umweltzuweisung 5€',
-        localizedDescription: 'Ihr Beitrag von 5€ generiert 8 kg zertifizierte Plastikentfernung. Bauen Sie Ihr Portfolio an Umweltvermögen auf.',
-        localizedTerminology: 'Umweltzuweisung',
+        localized_name: 'Umweltzuweisung 5€',
+        localized_description: 'Ihr Beitrag von 5€ generiert 8 kg zertifizierte Plastikentfernung. Bauen Sie Ihr Portfolio an Umweltvermögen auf.',
+        localized_terminology: 'Umweltzuweisung',
         currency: 'EUR',
-        localizedPrice: 5.00,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 5.00,
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
@@ -78,16 +78,16 @@ module.exports = {
     if (pasta) {
       localizations.push({
         id: uuidv4(),
-        skuId: pasta.id,
+        sku_id: pasta.id,
         locale: 'de-DE',
-        localizedName: 'Handwerkliche Pasta',
-        localizedDescription: 'Kaufen Sie nachhaltige handwerkliche Pasta und tragen Sie zu 22,7 kg Plastikentfernung bei. Unterstützt lokale Delikatessenhändler.',
-        localizedTerminology: 'Umweltwirkung',
+        localized_name: 'Handwerkliche Pasta',
+        localized_description: 'Kaufen Sie nachhaltige handwerkliche Pasta und tragen Sie zu 22,7 kg Plastikentfernung bei. Unterstützt lokale Delikatessenhändler.',
+        localized_terminology: 'Umweltwirkung',
         currency: 'EUR',
-        localizedPrice: 2.50,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 2.50,
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
@@ -98,32 +98,32 @@ module.exports = {
     if (gc25) {
       localizations.push({
         id: uuidv4(),
-        skuId: gc25.id,
+        sku_id: gc25.id,
         locale: 'fr-FR',
-        localizedName: 'Carte Cadeau 25€',
-        localizedDescription: 'Échangez votre code secret et recevez un actif environnemental certifié pour 227,3 kg de plastique retiré.',
-        localizedTerminology: 'Actif Environnemental Certifié',
+        localized_name: 'Carte Cadeau 25€',
+        localized_description: 'Échangez votre code secret et recevez un actif environnemental certifié pour 227,3 kg de plastique retiré.',
+        localized_terminology: 'Actif Environnemental Certifié',
         currency: 'EUR',
-        localizedPrice: 25.00,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 25.00,
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
     if (alloc5) {
       localizations.push({
         id: uuidv4(),
-        skuId: alloc5.id,
+        sku_id: alloc5.id,
         locale: 'fr-FR',
-        localizedName: 'Allocation Environnementale 5€',
-        localizedDescription: 'Votre contribution de 5€ génère 8 kg de retrait de plastique certifié. Construisez votre portefeuille d\'actifs environnementaux.',
-        localizedTerminology: 'Allocation Environnementale',
+        localized_name: 'Allocation Environnementale 5€',
+        localized_description: 'Votre contribution de 5€ génère 8 kg de retrait de plastique certifié. Construisez votre portefeuille d\'actifs environnementaux.',
+        localized_terminology: 'Allocation Environnementale',
         currency: 'EUR',
-        localizedPrice: 5.00,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 5.00,
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
@@ -134,32 +134,32 @@ module.exports = {
     if (lotConad) {
       localizations.push({
         id: uuidv4(),
-        skuId: lotConad.id,
+        sku_id: lotConad.id,
         locale: 'en-US',
-        localizedName: 'Conad Lot Claim 1:1',
-        localizedDescription: 'Conad Supermarket has pre-funded plastic removal for you. Your purchase contributes to certified environmental impact.',
-        localizedTerminology: 'Environmental Asset',
+        localized_name: 'Conad Lot Claim 1:1',
+        localized_description: 'Conad Supermarket has pre-funded plastic removal for you. Your purchase contributes to certified environmental impact.',
+        localized_terminology: 'Environmental Asset',
         currency: 'USD',
-        localizedPrice: 0.0021, // Approximate USD conversion
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 0.0021, // Approximate USD conversion
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
     if (gc25) {
       localizations.push({
         id: uuidv4(),
-        skuId: gc25.id,
+        sku_id: gc25.id,
         locale: 'en-US',
-        localizedName: 'Gift Card $27',
-        localizedDescription: 'Redeem your secret code and receive a certified environmental asset for 227.3 kg of plastic removed.',
-        localizedTerminology: 'Certified Environmental Asset',
+        localized_name: 'Gift Card $27',
+        localized_description: 'Redeem your secret code and receive a certified environmental asset for 227.3 kg of plastic removed.',
+        localized_terminology: 'Certified Environmental Asset',
         currency: 'USD',
-        localizedPrice: 27.00, // ~25 EUR
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 27.00, // ~25 EUR
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
@@ -167,32 +167,32 @@ module.exports = {
     if (alloc15) {
       localizations.push({
         id: uuidv4(),
-        skuId: alloc15.id,
+        sku_id: alloc15.id,
         locale: 'en-US',
-        localizedName: 'Environmental Allocation $16',
-        localizedDescription: 'Your $16 contribution generates 24 kg of certified plastic removal. Build your environmental asset portfolio.',
-        localizedTerminology: 'Environmental Allocation',
+        localized_name: 'Environmental Allocation $16',
+        localized_description: 'Your $16 contribution generates 24 kg of certified plastic removal. Build your environmental asset portfolio.',
+        localized_terminology: 'Environmental Allocation',
         currency: 'USD',
-        localizedPrice: 16.00, // ~15 EUR
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 16.00, // ~15 EUR
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
     if (pasta) {
       localizations.push({
         id: uuidv4(),
-        skuId: pasta.id,
+        sku_id: pasta.id,
         locale: 'en-US',
-        localizedName: 'Artisan Pasta',
-        localizedDescription: 'Purchase sustainable artisan pasta and contribute to 22.7 kg of plastic removal. Supports local delis.',
-        localizedTerminology: 'Environmental Impact',
+        localized_name: 'Artisan Pasta',
+        localized_description: 'Purchase sustainable artisan pasta and contribute to 22.7 kg of plastic removal. Supports local delis.',
+        localized_terminology: 'Environmental Impact',
         currency: 'USD',
-        localizedPrice: 2.75, // ~2.50 EUR
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 2.75, // ~2.50 EUR
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
@@ -203,32 +203,32 @@ module.exports = {
     if (gc25) {
       localizations.push({
         id: uuidv4(),
-        skuId: gc25.id,
+        sku_id: gc25.id,
         locale: 'es-ES',
-        localizedName: 'Tarjeta Regalo 25€',
-        localizedDescription: 'Canjea tu código secreto y recibe un activo ambiental certificado por 227,3 kg de plástico eliminado.',
-        localizedTerminology: 'Activo Ambiental Certificado',
+        localized_name: 'Tarjeta Regalo 25€',
+        localized_description: 'Canjea tu código secreto y recibe un activo ambiental certificado por 227,3 kg de plástico eliminado.',
+        localized_terminology: 'Activo Ambiental Certificado',
         currency: 'EUR',
-        localizedPrice: 25.00,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 25.00,
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
     if (alloc5) {
       localizations.push({
         id: uuidv4(),
-        skuId: alloc5.id,
+        sku_id: alloc5.id,
         locale: 'es-ES',
-        localizedName: 'Asignación Ambiental 5€',
-        localizedDescription: 'Tu contribución de 5€ genera 8 kg de eliminación de plástico certificada. Construye tu cartera de activos ambientales.',
-        localizedTerminology: 'Asignación Ambiental',
+        localized_name: 'Asignación Ambiental 5€',
+        localized_description: 'Tu contribución de 5€ genera 8 kg de eliminación de plástico certificada. Construye tu cartera de activos ambientales.',
+        localized_terminology: 'Asignación Ambiental',
         currency: 'EUR',
-        localizedPrice: 5.00,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 5.00,
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
@@ -239,80 +239,80 @@ module.exports = {
     if (lotConad) {
       localizations.push({
         id: uuidv4(),
-        skuId: lotConad.id,
+        sku_id: lotConad.id,
         locale: 'it-IT',
-        localizedName: 'Lotto Conad Prepagato 1:1',
-        localizedDescription: 'Conad ha prepagato la rimozione della plastica per te. Il tuo acquisto contribuisce all\'impatto ambientale certificato.',
-        localizedTerminology: 'Patrimonio Ambientale',
+        localized_name: 'Lotto Conad Prepagato 1:1',
+        localized_description: 'Conad ha prepagato la rimozione della plastica per te. Il tuo acquisto contribuisce all\'impatto ambientale certificato.',
+        localized_terminology: 'Patrimonio Ambientale',
         currency: 'EUR',
-        localizedPrice: parseFloat(lotConad.price),
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: parseFloat(lotConad.price),
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
     if (gc25) {
       localizations.push({
         id: uuidv4(),
-        skuId: gc25.id,
+        sku_id: gc25.id,
         locale: 'it-IT',
-        localizedName: 'Carta Regalo 25€',
-        localizedDescription: 'Riscatta il tuo codice segreto e ricevi un patrimonio ambientale certificato per 227,3 kg di plastica rimossa.',
-        localizedTerminology: 'Patrimonio Ambientale Certificato',
+        localized_name: 'Carta Regalo 25€',
+        localized_description: 'Riscatta il tuo codice segreto e ricevi un patrimonio ambientale certificato per 227,3 kg di plastica rimossa.',
+        localized_terminology: 'Patrimonio Ambientale Certificato',
         currency: 'EUR',
-        localizedPrice: 25.00,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 25.00,
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
     if (alloc5) {
       localizations.push({
         id: uuidv4(),
-        skuId: alloc5.id,
+        sku_id: alloc5.id,
         locale: 'it-IT',
-        localizedName: 'Accantonamento Ambientale 5€',
-        localizedDescription: 'Il tuo contributo di 5€ genera 8 kg di rimozione plastica certificata. Costruisci il tuo portafoglio di patrimonio ambientale.',
-        localizedTerminology: 'Accantonamento Ambientale',
+        localized_name: 'Accantonamento Ambientale 5€',
+        localized_description: 'Il tuo contributo di 5€ genera 8 kg di rimozione plastica certificata. Costruisci il tuo portafoglio di patrimonio ambientale.',
+        localized_terminology: 'Accantonamento Ambientale',
         currency: 'EUR',
-        localizedPrice: 5.00,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 5.00,
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
     if (alloc15) {
       localizations.push({
         id: uuidv4(),
-        skuId: alloc15.id,
+        sku_id: alloc15.id,
         locale: 'it-IT',
-        localizedName: 'Accantonamento Ambientale 15€',
-        localizedDescription: 'Il tuo contributo di 15€ genera 24 kg di rimozione plastica certificata. Hai acquisito patrimonio ambientale reale, verificabile e garantito.',
-        localizedTerminology: 'Patrimonio Ambientale Certificato',
+        localized_name: 'Accantonamento Ambientale 15€',
+        localized_description: 'Il tuo contributo di 15€ genera 24 kg di rimozione plastica certificata. Hai acquisito patrimonio ambientale reale, verificabile e garantito.',
+        localized_terminology: 'Patrimonio Ambientale Certificato',
         currency: 'EUR',
-        localizedPrice: 15.00,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 15.00,
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 
     if (pasta) {
       localizations.push({
         id: uuidv4(),
-        skuId: pasta.id,
+        sku_id: pasta.id,
         locale: 'it-IT',
-        localizedName: 'Pasta Artigianale',
-        localizedDescription: 'Acquista pasta artigianale sostenibile e contribuisci a 22,7 kg di rimozione plastica. Sostieni le gastronomie locali.',
-        localizedTerminology: 'Impatto Ambientale',
+        localized_name: 'Pasta Artigianale',
+        localized_description: 'Acquista pasta artigianale sostenibile e contribuisci a 22,7 kg di rimozione plastica. Sostieni le gastronomie locali.',
+        localized_terminology: 'Impatto Ambientale',
         currency: 'EUR',
-        localizedPrice: 2.50,
-        isActive: true,
-        createdAt: now,
-        updatedAt: now,
+        localized_price: 2.50,
+        is_active: true,
+        created_at: now,
+        updated_at: now,
       });
     }
 

@@ -1,5 +1,4 @@
 'use strict';
-const { v4: uuidv4 } = require('uuid');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -38,34 +37,6 @@ module.exports = {
         defaultValue: Sequelize.NOW,
       },
     });
-
-    // Insert initial configuration values
-    await queryInterface.bulkInsert('global_config', [
-      {
-        id: uuidv4(),
-        key: 'CURRENT_CSR_PRICE',
-        value: '0.11',
-        description: 'Current price per kg of plastic removed (in EUR). Impact = amount / this value.',
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-      {
-        id: uuidv4(),
-        key: 'PLATFORM_FEE_PERCENTAGE',
-        value: '0.10',
-        description: 'Platform fee percentage for Stripe split payments (e.g., 0.10 = 10%). Remaining goes to merchant.',
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-      {
-        id: uuidv4(),
-        key: 'MASTER_ID',
-        value: 'MARCELLO-MASTER-001',
-        description: 'Marcello Master ID for overall network tracking. Every transaction records this ID for attribution.',
-        created_at: new Date(),
-        updated_at: new Date(),
-      },
-    ]);
   },
 
   async down(queryInterface) {
