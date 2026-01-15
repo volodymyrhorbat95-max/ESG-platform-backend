@@ -307,7 +307,7 @@ class TransactionService {
       const totalImpactKg = Number(wallet.wallet.totalAccumulated) / 1000;
       const totalAmountSpent = Number(wallet.wallet.totalAmountSpent);
 
-      const certificateUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/api/certificates/${transaction.id}/download`;
+      const certificateUrl = `${env.frontend.url}/api/certificates/${transaction.id}/download`;
 
       await emailService.sendThresholdAchievement(
         user.email,
@@ -494,7 +494,7 @@ class TransactionService {
         const totalImpactKg = Number(wallet.wallet.totalAccumulated) / 1000;
         const totalAmountSpent = Number(wallet.wallet.totalAmountSpent);
 
-        const thresholdCertificateUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/api/certificates/${transaction.id}/download`;
+        const thresholdCertificateUrl = `${env.frontend.url}/api/certificates/${transaction.id}/download`;
 
         await emailService.sendThresholdAchievement(
           user.email,
