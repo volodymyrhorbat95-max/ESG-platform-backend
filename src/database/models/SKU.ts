@@ -12,6 +12,7 @@ export enum PaymentMode {
 // SKU attributes interface
 // CRITICAL: gramsWeight REMOVED - impact is calculated dynamically as (amount ÷ CURRENT_CSR_PRICE)
 // CRITICAL: amplivoThreshold RENAMED to corsairThreshold (service name changed)
+// Section 5.1: Added productWeight and description fields per requirements
 interface SKUAttributes {
   id: string;
   code: string;
@@ -21,6 +22,8 @@ interface SKUAttributes {
   requiresValidation: boolean;
   corsairThreshold: number;
   impactMultiplier: number;
+  productWeight?: number; // Section 5.1: Actual grams for physical products (e.g., 17g for pasta)
+  description?: string; // Section 5.1: Merchant-facing description
   partnerId?: string;
   merchantId?: string;
   isActive: boolean;
@@ -41,6 +44,8 @@ class SKU extends Model<SKUAttributes, SKUCreationAttributes> implements SKUAttr
   declare requiresValidation: boolean;
   declare corsairThreshold: number;
   declare impactMultiplier: number;
+  declare productWeight?: number;
+  declare description?: string;
   declare partnerId?: string;
   declare merchantId?: string;
   declare isActive: boolean;
@@ -93,6 +98,16 @@ SKU.init(
       allowNull: false,
       defaultValue: 1.0,
       comment: 'Multiplier for ALLOCATION type (e.g., 1.6 for amount × 1.6). Standard flows use CURRENT_CSR_PRICE.',
+    },
+    productWeight: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+      comment: 'Section 5.1: Actual grams for physical products (e.g., 17g pasta, 170g for 10x campaign)',
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: 'Section 5.1: Merchant-facing description of the SKU',
     },
     partnerId: {
       type: DataTypes.UUID,

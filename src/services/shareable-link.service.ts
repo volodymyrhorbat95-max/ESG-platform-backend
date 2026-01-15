@@ -1,5 +1,6 @@
 // Shareable Link Service - Business logic for secure dashboard sharing
 import { ShareableLink, User, Wallet, Transaction, SKU } from '../database/models/index.js';
+import { env } from '../config/env.js';
 
 interface CreateLinkOptions {
   expiresInDays?: number;
@@ -188,8 +189,7 @@ class ShareableLinkService {
 
   // Generate share URL
   getShareUrl(token: string): string {
-    const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    return `${baseUrl}/share/${token}`;
+    return `${env.frontend.url}/share/${token}`;
   }
 }
 

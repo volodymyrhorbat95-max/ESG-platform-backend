@@ -12,6 +12,8 @@ interface CreateSKUData {
   requiresValidation: boolean;
   corsairThreshold?: number;
   impactMultiplier?: number;
+  productWeight?: number; // Section 5.1: Actual grams for physical products
+  description?: string; // Section 5.1: Merchant-facing description
   partnerId?: string;
 }
 
@@ -73,6 +75,36 @@ class SKUService {
     const sku = await this.getSKUById(id);
     await sku.update({ isActive: false });
     return sku;
+  }
+
+  // Toggle SKU active status - Section 9.3
+  async toggleActive(id: string, isActive: boolean) {
+    const sku = await this.getSKUById(id);
+    await sku.update({ isActive });
+    return sku;
+  }
+
+  // Bulk import SKUs from CSV data - Section 9.3
+  async bulkImportSKUs(skusData: CreateSKUData[]) {
+    const results = {
+      success: [] as any[],
+      errors: [] as { row: number; code: string; error: string }[],
+    };
+
+    for (let i = 0; i < skusData.length; i++) {
+      try {
+        const sku = await this.createSKU(skusData[i]);
+        results.success.push(sku);
+      } catch (error: any) {
+        results.errors.push({
+          row: i + 1,
+          code: skusData[i].code,
+          error: error.message,
+        });
+      }
+    }
+
+    return results;
   }
 
   // Calculate impact for ALLOCATION type (amount × multiplier = kg)

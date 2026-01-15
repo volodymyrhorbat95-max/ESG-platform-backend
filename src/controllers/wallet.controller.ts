@@ -3,16 +3,17 @@ import { Request, Response, NextFunction } from 'express';
 import walletService from '../services/wallet.service.js';
 
 class WalletController {
-  // GET /api/user/wallet - Get authenticated user's wallet (from session/token)
+  // GET /api/user/wallet - Get authenticated user's wallet (from JWT token)
+  // REQUIRES: requireAuth middleware to extract userId from JWT
   async getUserWallet(req: Request, res: Response, next: NextFunction) {
     try {
-      // TODO: Get userId from authenticated session/JWT token
-      // For now, require userId in query parameter
-      const userId = req.query.userId as string;
+      // Get userId from authenticated JWT token (set by requireAuth middleware)
+      const userId = req.userId;
+
       if (!userId) {
-        return res.status(400).json({
+        return res.status(401).json({
           success: false,
-          error: 'User ID required',
+          error: 'Authentication required',
         });
       }
 
@@ -26,11 +27,11 @@ class WalletController {
     }
   }
 
-  // GET /api/merchant/wallet - Get authenticated merchant's wallet (from session/token)
+  // GET /api/merchant/wallet - Get authenticated merchant's wallet
+  // Supports pagination and date filtering via query parameters
+  // Query params: merchantId, limit, offset, startDate, endDate
   async getMerchantWallet(req: Request, res: Response, next: NextFunction) {
     try {
-      // TODO: Get merchantId from authenticated session/JWT token
-      // For now, require merchantId in query parameter
       const merchantId = req.query.merchantId as string;
       if (!merchantId) {
         return res.status(400).json({
@@ -39,7 +40,15 @@ class WalletController {
         });
       }
 
-      const data = await walletService.getMerchantWallet(merchantId);
+      // Parse optional pagination and filtering parameters
+      const options = {
+        limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
+        offset: req.query.offset ? parseInt(req.query.offset as string) : undefined,
+        startDate: req.query.startDate ? new Date(req.query.startDate as string) : undefined,
+        endDate: req.query.endDate ? new Date(req.query.endDate as string) : undefined,
+      };
+
+      const data = await walletService.getMerchantWallet(merchantId, options);
       res.json({
         success: true,
         data,
@@ -69,6 +78,65 @@ class WalletController {
       res.json({
         success: true,
         data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // POST /api/admin/users/:userId/wallet/adjust - Manual wallet adjustment (admin only) - Section 9.4
+  async adjustWallet(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = req.params;
+      const { amount, reason } = req.body;
+
+      // Validate inputs
+      if (amount === undefined || amount === null) {
+        return res.status(400).json({
+          success: false,
+          error: 'Amount is required',
+        });
+      }
+
+      if (!reason || reason.trim().length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Reason is required',
+        });
+      }
+
+      const amountGrams = Number(amount);
+      if (isNaN(amountGrams)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Amount must be a valid number',
+        });
+      }
+
+      // Get admin identifier from request
+      const adjustedBy = (req as any).adminEmail || 'admin';
+
+      const result = await walletService.adjustWallet(userId, amountGrams, reason, adjustedBy);
+
+      res.json({
+        success: true,
+        data: result,
+        message: `Wallet adjusted by ${amountGrams}g`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // GET /api/admin/users/:userId/wallet/adjustments - Get adjustment history (admin only) - Section 9.4
+  async getAdjustmentHistory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = req.params;
+      const adjustments = await walletService.getAdjustmentHistory(userId);
+
+      res.json({
+        success: true,
+        data: adjustments,
       });
     } catch (error) {
       next(error);

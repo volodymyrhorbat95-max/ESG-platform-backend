@@ -2,6 +2,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from './sequelize.js';
 
 // Wallet attributes interface
+// Section 6.1: Added totalAmountSpent and certifiedAssetStatus for threshold tracking
 interface WalletAttributes {
   id: string;
   userId?: string;
@@ -9,12 +10,14 @@ interface WalletAttributes {
   totalAccumulated: number;
   totalRedeemed: number;
   currentBalance: number;
+  totalAmountSpent: number; // Section 6.1: Total euros spent (for €10 threshold tracking)
+  certifiedAssetStatus: boolean; // Section 6.2: True if totalAmountSpent >= CORSAIR_THRESHOLD
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 // Wallet creation attributes
-interface WalletCreationAttributes extends Optional<WalletAttributes, 'id' | 'createdAt' | 'updatedAt' | 'totalAccumulated' | 'totalRedeemed' | 'currentBalance'> {}
+interface WalletCreationAttributes extends Optional<WalletAttributes, 'id' | 'createdAt' | 'updatedAt' | 'totalAccumulated' | 'totalRedeemed' | 'currentBalance' | 'totalAmountSpent' | 'certifiedAssetStatus'> {}
 
 // Wallet model class
 class Wallet extends Model<WalletAttributes, WalletCreationAttributes> implements WalletAttributes {
@@ -24,6 +27,8 @@ class Wallet extends Model<WalletAttributes, WalletCreationAttributes> implement
   declare totalAccumulated: number;
   declare totalRedeemed: number;
   declare currentBalance: number;
+  declare totalAmountSpent: number;
+  declare certifiedAssetStatus: boolean;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 }
@@ -63,6 +68,18 @@ Wallet.init(
       allowNull: false,
       defaultValue: 0,
       comment: 'Current balance (totalAccumulated - totalRedeemed)',
+    },
+    totalAmountSpent: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0,
+      comment: 'Section 6.1: Total euros spent across all transactions (for €10 threshold tracking)',
+    },
+    certifiedAssetStatus: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      comment: 'Section 6.2: True if totalAmountSpent >= CORSAIR_THRESHOLD (certified asset unlocked)',
     },
   },
   {

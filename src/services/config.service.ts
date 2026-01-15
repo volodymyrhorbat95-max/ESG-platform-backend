@@ -1,5 +1,5 @@
 // Config Service - Manage global configuration (CURRENT_CSR_PRICE, etc.)
-import { GlobalConfig } from '../database/models/index.js';
+import { GlobalConfig, ConfigAuditLog } from '../database/models/index.js';
 
 class ConfigService {
   /**
@@ -101,8 +101,13 @@ class ConfigService {
    * @param key - Configuration key
    * @param value - New value (stored as string)
    * @param description - Optional description
+   * @param changedBy - Admin who made the change (email or ID)
    */
-  async setValue(key: string, value: string, description?: string): Promise<GlobalConfig> {
+  async setValue(key: string, value: string, description?: string, changedBy?: string): Promise<GlobalConfig> {
+    // Get old value for audit log
+    const existingConfig = await GlobalConfig.findOne({ where: { key } });
+    const oldValue = existingConfig ? existingConfig.value : null;
+
     const [config, created] = await GlobalConfig.findOrCreate({
       where: { key },
       defaults: { key, value, description },
@@ -111,13 +116,35 @@ class ConfigService {
     if (!created) {
       // Update existing config
       config.value = value;
-      if (description) {
+      if (description !== undefined) {
         config.description = description;
       }
       await config.save();
     }
 
+    // Log change to audit table
+    if (changedBy) {
+      await ConfigAuditLog.create({
+        configKey: key,
+        oldValue,
+        newValue: value,
+        changedBy,
+      });
+    }
+
     return config;
+  }
+
+  /**
+   * Get configuration change history for a specific key
+   * @param key - Configuration key
+   * @returns Array of audit log entries, newest first
+   */
+  async getConfigHistory(key: string): Promise<ConfigAuditLog[]> {
+    return await ConfigAuditLog.findAll({
+      where: { configKey: key },
+      order: [['changedAt', 'DESC']],
+    });
   }
 
   /**

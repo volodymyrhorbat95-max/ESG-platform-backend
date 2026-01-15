@@ -6,6 +6,14 @@ import { sequelize } from './database/models/index.js';
 // Import middleware
 import { corsOptions } from './middleware/cors.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import {
+  helmetConfig,
+  generalRateLimiter,
+  authRateLimiter,
+  paymentRateLimiter,
+  csrfProtection,
+  sanitizeInputs,
+} from './middleware/security.js';
 
 // Import routes
 import adminRoutes from './routes/admin.routes.js';
@@ -22,13 +30,40 @@ import partnerRoutes from './routes/partner.routes.js';
 import certificateRoutes from './routes/certificate.routes.js';
 import qrcodeRoutes from './routes/qrcode.routes.js';
 import configRoutes from './routes/config.routes.js';
+import webhookRoutes from './routes/webhook.routes.js';
 
 const app = express();
 
 // Middleware - CORRECT ORDER IS CRITICAL
+// Section 17.4: Security headers (helmet) must be first
+app.use(helmetConfig);
+
+// Section 17.4: CORS configuration
 app.use(cors(corsOptions));
+
+// CRITICAL: Webhook routes MUST be registered BEFORE express.json()
+// Webhook signature verification requires raw request body
+
+// Section 7.1: Stripe webhook
+import paymentController from './controllers/payment.controller.js';
+app.post('/api/payments/webhook', express.raw({ type: 'application/json' }), paymentController.webhook);
+
+// Section 20.4: E-commerce webhooks (WooCommerce, Shopify, etc.)
+import webhookController from './controllers/webhook.controller.js';
+app.post('/api/webhooks/ecommerce/:merchantId', express.raw({ type: 'application/json' }), webhookController.handleEcommerceWebhook);
+
+// Global JSON parsing for all other routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Section 17.4: Input sanitization for XSS protection
+app.use(sanitizeInputs);
+
+// Section 17.4: CSRF protection for state-changing requests
+app.use(csrfProtection);
+
+// Section 17.4: General rate limiting for all API endpoints
+app.use(generalRateLimiter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -36,8 +71,14 @@ app.get('/health', (req, res) => {
 });
 
 // API Routes
-app.use('/api/admin', adminRoutes); // Admin authentication routes (login, verify, sku)
-app.use('/api', authRoutes); // User authentication routes (magic link, session)
+// Section 17.4: Apply strict rate limiting to authentication endpoints
+app.use('/api/admin', authRateLimiter, adminRoutes); // Admin authentication routes (login, verify, sku)
+app.use('/api/auth', authRateLimiter, authRoutes); // User authentication routes (magic link, session)
+
+// Section 17.4: Apply payment rate limiting to payment endpoints
+app.use('/api/payments', paymentRateLimiter, paymentRoutes);
+
+// Standard routes with general rate limiting (already applied globally)
 app.use('/api', skuRoutes); // Contains /admin/skus and /impact routes
 app.use('/api', userRoutes); // Contains /register and /users routes
 app.use('/api', walletRoutes); // Contains /user/wallet and /merchant/wallet routes
@@ -47,10 +88,10 @@ app.use('/api', merchantRoutes); // Contains /admin/merchants and /merchants/:id
 app.use('/api/admin/partners', partnerRoutes); // Admin partner management routes
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/wallets', walletRoutes); // Legacy routes with IDs
-app.use('/api/payments', paymentRoutes);
 app.use('/api', certificateRoutes); // Certificate generation routes
 app.use('/api', qrcodeRoutes); // QR code generation routes for merchants
 app.use('/api/config', configRoutes); // Global configuration management routes
+app.use('/api/webhooks', webhookRoutes); // E-commerce webhook configuration routes (test, config)
 
 // 404 handler - must be after all routes
 app.use(notFoundHandler);

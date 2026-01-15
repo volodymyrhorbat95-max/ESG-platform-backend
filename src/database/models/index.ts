@@ -13,12 +13,15 @@ import SKULocalization from './SKULocalization.js';
 import ShareableLink from './ShareableLink.js';
 import GlobalConfig from './GlobalConfig.js';
 import MagicLink from './MagicLink.js';
+import ConfigAuditLog from './ConfigAuditLog.js';
+import WalletAdjustment from './WalletAdjustment.js';
 
 // Define associations
 User.hasMany(Transaction, { foreignKey: 'userId', as: 'transactions' });
 User.hasOne(Wallet, { foreignKey: 'userId', as: 'wallet' });
 User.hasMany(ShareableLink, { foreignKey: 'userId', as: 'shareableLinks' });
 User.hasMany(MagicLink, { foreignKey: 'userId', as: 'magicLinks' });
+User.hasMany(WalletAdjustment, { foreignKey: 'userId', as: 'walletAdjustments' });
 
 SKU.hasMany(Transaction, { foreignKey: 'skuId', as: 'transactions' });
 SKU.hasMany(GiftCardCode, { foreignKey: 'skuId', as: 'giftCardCodes' });
@@ -45,6 +48,8 @@ Wallet.belongsTo(Merchant, { foreignKey: 'merchantId', as: 'merchant' });
 GiftCardCode.belongsTo(SKU, { foreignKey: 'skuId', as: 'sku' });
 GiftCardCode.belongsTo(User, { foreignKey: 'redeemedBy', as: 'redeemer' });
 
+WalletAdjustment.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 // Export
 export {
   sequelize,
@@ -59,6 +64,8 @@ export {
   ShareableLink,
   GlobalConfig,
   MagicLink,
+  ConfigAuditLog,
+  WalletAdjustment,
   PaymentMode,
   PaymentStatus,
 };
@@ -76,4 +83,6 @@ export default {
   ShareableLink,
   GlobalConfig,
   MagicLink,
+  ConfigAuditLog,
+  WalletAdjustment,
 };

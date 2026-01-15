@@ -56,12 +56,31 @@ class ConfigController {
         }
       }
 
-      const config = await configService.setValue(key, value, description);
+      // Get admin identifier from request (could be from JWT token or session)
+      // For now, using a placeholder - this should be replaced with actual admin identification
+      const changedBy = (req as any).adminEmail || 'admin';
+
+      const config = await configService.setValue(key, value, description, changedBy);
 
       res.json({
         success: true,
         data: config,
         message: `Configuration '${key}' updated successfully`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // GET /api/config/:key/history - Get configuration change history (admin only)
+  async getHistory(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { key } = req.params;
+      const history = await configService.getConfigHistory(key);
+
+      res.json({
+        success: true,
+        data: history,
       });
     } catch (error) {
       next(error);

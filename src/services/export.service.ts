@@ -74,6 +74,7 @@ class ExportService {
     });
 
     // Format data for export
+    // Section 12.1: Include all 3 attribution IDs for royalty calculation
     const exportData = transactions.map(transaction => ({
       'Transaction ID': transaction.id,
       'Date': transaction.createdAt.toISOString().split('T')[0],
@@ -90,7 +91,9 @@ class ExportService {
       'Payment Mode': transaction.sku.paymentMode,
       'Amount (EUR)': Number(transaction.amount).toFixed(2),
       'Impact (grams)': Number(transaction.calculatedImpact).toFixed(2),
-      'Merchant': transaction.merchant?.name || 'N/A',
+      'Master ID': transaction.masterId,
+      'Merchant ID': transaction.merchantId || 'N/A',
+      'Merchant Name': transaction.merchant?.name || 'N/A',
       'Partner ID': transaction.partnerId || 'N/A',
       'Order ID': transaction.orderId || 'N/A',
       'Payment Status': transaction.paymentStatus,
@@ -132,11 +135,13 @@ class ExportService {
       { wch: 15 }, // Payment Mode
       { wch: 12 }, // Amount
       { wch: 15 }, // Impact
-      { wch: 25 }, // Merchant
+      { wch: 36 }, // Master ID
+      { wch: 36 }, // Merchant ID
+      { wch: 25 }, // Merchant Name
       { wch: 36 }, // Partner ID
       { wch: 20 }, // Order ID
       { wch: 15 }, // Payment Status
-      { wch: 12 }, // Amplivo Flag
+      { wch: 12 }, // Corsair Connect Flag
       { wch: 30 }, // Stripe Payment Intent
     ];
     worksheet['!cols'] = columnWidths;

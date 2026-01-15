@@ -14,9 +14,11 @@ router.post(
   validatePaymentMode,
   skuController.create
 );
+router.post('/admin/skus/bulk-import', requireAdmin, skuController.bulkImport); // Section 9.3: Bulk CSV import
 router.get('/admin/skus', requireAdmin, skuController.getAll);
 router.get('/admin/skus/:id', requireAdmin, skuController.getById);
 router.put('/admin/skus/:id', requireAdmin, skuController.update);
+router.put('/admin/skus/:id/toggle-active', requireAdmin, skuController.toggleActive); // Section 9.3: Toggle active status
 router.delete('/admin/skus/:id', requireAdmin, skuController.delete);
 
 // SKU Localization routes (protected) - for multi-market support

@@ -42,6 +42,9 @@ export const errorHandler = (
   } else if (err.name === 'SequelizeForeignKeyConstraintError') {
     statusCode = 400;
     message = 'Invalid reference - related resource not found';
+  } else if (err.message) {
+    // Section 7.4: Use error message from generic Error objects for better frontend feedback
+    message = err.message;
   }
 
   // Log error details in development

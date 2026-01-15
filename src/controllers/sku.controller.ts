@@ -118,6 +118,50 @@ class SKUController {
       next(error);
     }
   }
+
+  // PUT /api/skus/:id/toggle-active - Toggle SKU active status (Section 9.3)
+  async toggleActive(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { isActive } = req.body;
+      if (typeof isActive !== 'boolean') {
+        return res.status(400).json({
+          success: false,
+          error: 'isActive must be a boolean',
+        });
+      }
+
+      const sku = await skuService.toggleActive(req.params.id, isActive);
+      res.json({
+        success: true,
+        data: sku,
+        message: `SKU ${isActive ? 'activated' : 'deactivated'} successfully`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // POST /api/admin/skus/bulk-import - Bulk import SKUs from CSV (Section 9.3)
+  async bulkImport(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { skus } = req.body;
+      if (!Array.isArray(skus) || skus.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'skus array is required and must not be empty',
+        });
+      }
+
+      const results = await skuService.bulkImportSKUs(skus);
+      res.status(201).json({
+        success: true,
+        data: results,
+        message: `Imported ${results.success.length} SKUs successfully, ${results.errors.length} errors`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new SKUController();

@@ -2,13 +2,22 @@
 import { Request, Response, NextFunction } from 'express';
 import qrcodeService from '../services/qrcode.service.js';
 import { SKU, Merchant } from '../database/models/index.js';
+import { env } from '../config/env.js';
 
 class QRCodeController {
   // POST /api/merchants/:merchantId/qrcodes
   async generateSingleQRCode(req: Request, res: Response, next: NextFunction) {
     try {
       const { merchantId } = req.params;
-      const { skuCode } = req.body;
+      const { skuCode, format = 'png', includeLogo = false } = req.body;
+
+      // Validate format
+      if (!['png', 'svg', 'pdf'].includes(format)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid format. Must be png, svg, or pdf',
+        });
+      }
 
       // Validate merchant exists
       const merchant = await Merchant.findByPk(merchantId);
@@ -28,11 +37,13 @@ class QRCodeController {
         });
       }
 
-      const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const baseUrl = env.frontend.url;
       const qrCodeData = await qrcodeService.generateQRCode({
         merchantId,
         skuCode,
         baseUrl,
+        format: format as 'png' | 'svg' | 'pdf',
+        includeLogo,
       });
 
       res.json({
@@ -52,12 +63,20 @@ class QRCodeController {
   async generateBulkQRCodes(req: Request, res: Response, next: NextFunction) {
     try {
       const { merchantId } = req.params;
-      const { skuCodes } = req.body; // Array of SKU codes
+      const { skuCodes, format = 'png', includeLogo = false } = req.body; // Array of SKU codes
 
       if (!Array.isArray(skuCodes) || skuCodes.length === 0) {
         return res.status(400).json({
           success: false,
           error: 'skuCodes must be a non-empty array',
+        });
+      }
+
+      // Validate format
+      if (!['png', 'svg', 'pdf'].includes(format)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid format. Must be png, svg, or pdf',
         });
       }
 
@@ -84,8 +103,14 @@ class QRCodeController {
         });
       }
 
-      const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-      const qrCodes = await qrcodeService.generateBulkQRCodes(merchantId, skuCodes, baseUrl);
+      const baseUrl = env.frontend.url;
+      const qrCodes = await qrcodeService.generateBulkQRCodes(
+        merchantId,
+        skuCodes,
+        baseUrl,
+        format as 'png' | 'svg' | 'pdf',
+        includeLogo
+      );
 
       // Attach SKU details
       const qrCodesWithDetails = qrCodes.map((qr, index) => ({

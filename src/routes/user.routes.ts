@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import userController from '../controllers/user.controller.js';
 import shareableLinkController from '../controllers/shareable-link.controller.js';
+import walletController from '../controllers/wallet.controller.js';
 import { requireAdmin } from '../middleware/adminAuth.js';
 import {
   validateRequiredFields,
@@ -69,6 +70,10 @@ router.put('/users/:id/self', userController.updateSelf); // User self-update (n
 router.put('/users/:id', requireAdmin, userController.update); // Admin only - edit user profile
 router.delete('/users/:id', requireAdmin, userController.delete); // Admin only - delete user
 router.get('/users/:id/export', userController.exportData);
+
+// Wallet adjustment routes - Section 9.4 (admin only)
+router.post('/users/:userId/wallet/adjust', requireAdmin, walletController.adjustWallet);
+router.get('/users/:userId/wallet/adjustments', requireAdmin, walletController.getAdjustmentHistory);
 
 // Shareable link routes - for customer engagement
 router.post('/users/:userId/share', shareableLinkController.createLink);

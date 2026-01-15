@@ -113,6 +113,72 @@ class TransactionController {
       next(error);
     }
   }
+
+  // POST /api/admin/transactions/manual - Create manual transaction (admin only) - Section 9.5
+  async createManual(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId, skuCode, amount, merchantId, partnerId, orderId, reason } = req.body;
+
+      // Validate required fields
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          error: 'User ID is required',
+        });
+      }
+
+      if (!skuCode) {
+        return res.status(400).json({
+          success: false,
+          error: 'SKU code is required',
+        });
+      }
+
+      if (amount === undefined || amount === null) {
+        return res.status(400).json({
+          success: false,
+          error: 'Amount is required',
+        });
+      }
+
+      const amountNum = Number(amount);
+      if (isNaN(amountNum) || amountNum < 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Amount must be a positive number',
+        });
+      }
+
+      if (!reason || reason.trim().length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Reason is required for manual transactions',
+        });
+      }
+
+      // Get admin identifier from request
+      const createdBy = (req as any).adminEmail || 'admin';
+
+      const transaction = await transactionService.createManualTransaction({
+        userId,
+        skuCode,
+        amount: amountNum,
+        merchantId,
+        partnerId,
+        orderId,
+        reason: reason.trim(),
+        createdBy,
+      });
+
+      res.status(201).json({
+        success: true,
+        data: transaction,
+        message: 'Manual transaction created successfully',
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new TransactionController();

@@ -12,6 +12,8 @@ import walletService from './wallet.service.js';
 import giftCardService from './giftCard.service.js';
 import skuService from './sku.service.js';
 import configService from './config.service.js';
+import emailService from './email.service.js';
+import { env } from '../config/env.js';
 
 // Registration data from frontend
 interface RegistrationData {
@@ -243,19 +245,81 @@ class TransactionService {
     });
 
     // 10. Update wallet for completed transactions
+    // Section 6.2: Pass transaction amount and threshold for accumulation tracking
     if (paymentStatus === PaymentStatus.COMPLETED || paymentStatus === PaymentStatus.NA) {
-      await walletService.updateWalletBalance(user.id, calculatedImpact, 'user');
+      await walletService.updateWalletBalance(
+        user.id,
+        calculatedImpact,
+        'user',
+        transactionAmount,
+        corsairThreshold
+      );
       if (input.merchantId) {
-        await walletService.updateWalletBalance(input.merchantId, calculatedImpact, 'merchant');
+        await walletService.updateWalletBalance(
+          input.merchantId,
+          calculatedImpact,
+          'merchant',
+          transactionAmount,
+          corsairThreshold
+        );
       }
     }
 
     // 11. Update user's corsairConnectFlag if transaction triggers it
+    const previousCorsairFlag = user.corsairConnectFlag;
     if (corsairConnectFlag && !user.corsairConnectFlag) {
       await userService.setCorsairConnectFlag(user.id, true);
     }
 
-    // 12. Return transaction with associations
+    // 12. Send transaction confirmation email (Section 15.2)
+    // Send for completed transactions (COMPLETED or NA status)
+    if (paymentStatus === PaymentStatus.COMPLETED || paymentStatus === PaymentStatus.NA) {
+      const userName = user.firstName || 'Guest';
+      const impactKg = (calculatedImpact / 1000).toFixed(3);
+      const transactionDate = new Date().toISOString().split('T')[0];
+
+      // Generate certificate URL if this is a certified asset (≥€10)
+      const certificateUrl = corsairConnectFlag
+        ? `${env.frontend.url}/api/certificates/${transaction.id}/download`
+        : undefined;
+
+      await emailService.sendTransactionConfirmation(
+        user.email,
+        userName,
+        {
+          id: transaction.id,
+          impactGrams: calculatedImpact,
+          impactKg,
+          date: transactionDate,
+          sku: { code: sku.code, name: sku.name },
+          amount: transactionAmount,
+        },
+        user.id,
+        certificateUrl
+      );
+    }
+
+    // 13. Send threshold achievement email if user just crossed €10 threshold (Section 15.3)
+    // Only send if this transaction caused the threshold to be crossed (not previously flagged)
+    if (corsairConnectFlag && !previousCorsairFlag) {
+      const userName = user.firstName || 'Guest';
+      const wallet = await walletService.getUserWallet(user.id);
+      const totalImpactKg = Number(wallet.wallet.totalAccumulated) / 1000;
+      const totalAmountSpent = Number(wallet.wallet.totalAmountSpent);
+
+      const certificateUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/api/certificates/${transaction.id}/download`;
+
+      await emailService.sendThresholdAchievement(
+        user.email,
+        userName,
+        totalImpactKg,
+        totalAmountSpent,
+        user.id,
+        certificateUrl
+      );
+    }
+
+    // 14. Return transaction with associations
     return await this.getTransactionById(transaction.id);
   }
 
@@ -370,23 +434,76 @@ class TransactionService {
     });
 
     // If payment just completed, update wallets
+    // Section 6.2: Pass transaction amount and threshold for accumulation tracking
     if (paymentStatus === PaymentStatus.COMPLETED) {
+      const corsairThreshold = await configService.getCorsairThreshold();
+
       await walletService.updateWalletBalance(
         transaction.userId,
         Number(transaction.calculatedImpact),
-        'user'
+        'user',
+        Number(transaction.amount),
+        corsairThreshold
       );
       if (transaction.merchantId) {
         await walletService.updateWalletBalance(
           transaction.merchantId,
           Number(transaction.calculatedImpact),
-          'merchant'
+          'merchant',
+          Number(transaction.amount),
+          corsairThreshold
         );
       }
 
       // Update user's corsairConnectFlag if applicable
-      if (transaction.corsairConnectFlag) {
+      const user = transaction.user;
+      const previousCorsairFlag = user.corsairConnectFlag;
+      if (transaction.corsairConnectFlag && !user.corsairConnectFlag) {
         await userService.setCorsairConnectFlag(transaction.userId, true);
+      }
+
+      // Send transaction confirmation email (Section 15.2)
+      const userName = user.firstName || 'Guest';
+      const impactKg = (Number(transaction.calculatedImpact) / 1000).toFixed(3);
+      const transactionDate = transaction.createdAt.toISOString().split('T')[0];
+      const sku = transaction.sku;
+
+      // Generate certificate URL if this is a certified asset (≥€10)
+      const certificateUrl = transaction.corsairConnectFlag
+        ? `${env.frontend.url}/api/certificates/${transaction.id}/download`
+        : undefined;
+
+      await emailService.sendTransactionConfirmation(
+        user.email,
+        userName,
+        {
+          id: transaction.id,
+          impactGrams: Number(transaction.calculatedImpact),
+          impactKg,
+          date: transactionDate,
+          sku: { code: sku.code, name: sku.name },
+          amount: Number(transaction.amount),
+        },
+        user.id,
+        certificateUrl
+      );
+
+      // Send threshold achievement email if user just crossed €10 threshold (Section 15.3)
+      if (transaction.corsairConnectFlag && !previousCorsairFlag) {
+        const wallet = await walletService.getUserWallet(user.id);
+        const totalImpactKg = Number(wallet.wallet.totalAccumulated) / 1000;
+        const totalAmountSpent = Number(wallet.wallet.totalAmountSpent);
+
+        const thresholdCertificateUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/api/certificates/${transaction.id}/download`;
+
+        await emailService.sendThresholdAchievement(
+          user.email,
+          userName,
+          totalImpactKg,
+          totalAmountSpent,
+          user.id,
+          thresholdCertificateUrl
+        );
       }
     }
 
@@ -404,6 +521,93 @@ class TransactionService {
       },
     });
     return result || 0;
+  }
+
+  /**
+   * Manual transaction creation (admin only) - Section 9.5
+   * Creates a transaction directly without payment processing
+   * Used for corrections, refunds, manual entries
+   */
+  async createManualTransaction(input: {
+    userId: string;
+    skuCode: string;
+    amount: number;
+    merchantId?: string;
+    partnerId?: string;
+    orderId?: string;
+    reason: string; // Admin notes explaining why this manual transaction was created
+    createdBy: string; // Admin who created it
+  }) {
+    // 1. Get SKU information
+    const sku = await skuService.getSKUByCode(input.skuCode);
+    if (!sku.isActive) {
+      throw new Error('This SKU is no longer active');
+    }
+
+    // 2. Verify user exists
+    const user = await userService.getUserById(input.userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // 3. Get global config values
+    const currentCSRPrice = await configService.getCurrentCSRPrice();
+    const masterId = await configService.getMasterId();
+    const allocationMultiplier = await configService.getAllocationMultiplier();
+    const corsairThreshold = await configService.getCorsairThreshold();
+
+    // 4. Calculate impact based on SKU payment mode
+    let calculatedImpact = 0;
+    if (sku.paymentMode === PaymentMode.ALLOCATION) {
+      calculatedImpact = this.calculateAllocationImpactGrams(input.amount, allocationMultiplier);
+    } else {
+      calculatedImpact = this.calculateStandardImpactGrams(input.amount, currentCSRPrice, sku.impactMultiplier);
+    }
+
+    // 5. Determine Corsair Connect flag
+    const corsairConnectFlag = input.amount >= corsairThreshold;
+
+    // 6. Create transaction
+    // Manual transactions are always marked as COMPLETED (admin bypass)
+    const transaction = await Transaction.create({
+      userId: input.userId,
+      skuId: sku.id,
+      masterId,
+      merchantId: input.merchantId,
+      partnerId: input.partnerId,
+      orderId: input.orderId || `MANUAL-${Date.now()}`,
+      amount: input.amount,
+      calculatedImpact,
+      paymentStatus: PaymentStatus.COMPLETED,
+      corsairConnectFlag,
+      // Store admin notes in a field (we'd need to add this to model, or use orderId)
+    });
+
+    // 7. Update wallets
+    await walletService.updateWalletBalance(
+      user.id,
+      calculatedImpact,
+      'user',
+      input.amount,
+      corsairThreshold
+    );
+    if (input.merchantId) {
+      await walletService.updateWalletBalance(
+        input.merchantId,
+        calculatedImpact,
+        'merchant',
+        input.amount,
+        corsairThreshold
+      );
+    }
+
+    // 8. Update user's corsairConnectFlag if transaction triggers it
+    if (corsairConnectFlag && !user.corsairConnectFlag) {
+      await userService.setCorsairConnectFlag(user.id, true);
+    }
+
+    // 9. Return transaction with associations
+    return await this.getTransactionById(transaction.id);
   }
 }
 

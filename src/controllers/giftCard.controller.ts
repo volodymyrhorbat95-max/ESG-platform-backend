@@ -5,11 +5,13 @@ import giftCardService from '../services/giftCard.service.js';
 class GiftCardController {
   // POST /api/validate-code - Validate gift card code (validation only, no redemption)
   // Redemption happens during transaction creation to ensure the real user ID is used
+  // Section 8.2: Validates code exists, not used, and optionally matches expected SKU
   async validate(req: Request, res: Response, next: NextFunction) {
     try {
-      const { code } = req.body;
+      const { code, skuId } = req.body;
       // Validate without redeeming - redemption happens in transaction.service.ts
-      const giftCard = await giftCardService.validateCode(code);
+      // Pass skuId to verify code matches expected SKU (Section 8.2 requirement #4)
+      const giftCard = await giftCardService.validateCode(code, skuId);
       res.json({
         success: true,
         data: giftCard,

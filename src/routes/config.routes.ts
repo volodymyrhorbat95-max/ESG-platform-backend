@@ -11,6 +11,10 @@ const router = Router();
 // Must be defined BEFORE /:key to avoid being caught by parameter route
 router.get('/', requireAdmin, configController.getAll);
 
+// GET /api/config/:key/history - Get configuration change history (admin only)
+// Must be defined BEFORE /:key to avoid being caught by parameter route
+router.get('/:key/history', requireAdmin, configController.getHistory);
+
 // GET /api/config/:key - Get configuration value by key
 // Public endpoint - can read config values (e.g., CURRENT_CSR_PRICE for calculations)
 router.get('/:key', configController.getValue);

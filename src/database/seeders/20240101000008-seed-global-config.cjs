@@ -27,8 +27,8 @@ module.exports = {
       {
         id: uuidv4(),
         key: 'PLATFORM_FEE_PERCENTAGE',
-        value: '10',
-        description: 'Platform fee percentage for Stripe split payments (PAY mode)',
+        value: '0.10',
+        description: 'Platform fee percentage for Stripe split payments (PAY mode) - stored as decimal (e.g., 0.10 for 10%)',
         created_at: now,
         updated_at: now,
       },

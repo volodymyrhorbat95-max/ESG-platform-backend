@@ -6,9 +6,7 @@
 import PDFDocument from 'pdfkit';
 import QRCode from 'qrcode';
 import { Transaction, User, SKU } from '../database/models/index.js';
-
-// Get verification URL from environment or use default
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+import { env } from '../config/env.js';
 
 class CertificateService {
   /**
@@ -16,7 +14,7 @@ class CertificateService {
    * QR code contains verification URL for the certificate
    */
   private async generateVerificationQRCode(transactionId: string): Promise<Buffer> {
-    const verificationUrl = `${FRONTEND_URL}/verify/${transactionId}`;
+    const verificationUrl = `${env.frontend.url}/verify/${transactionId}`;
 
     // Generate QR code as PNG buffer for PDFKit
     const qrBuffer = await QRCode.toBuffer(verificationUrl, {
@@ -192,7 +190,7 @@ class CertificateService {
       doc
         .fontSize(8)
         .fillColor('#9CA3AF')
-        .text(`${FRONTEND_URL}/verify/${transactionId}`, { align: 'center' });
+        .text(`${env.frontend.url}/verify/${transactionId}`, { align: 'center' });
 
       doc.moveDown(1.5);
 
