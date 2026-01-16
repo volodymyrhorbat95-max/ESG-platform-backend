@@ -31,6 +31,7 @@ import certificateRoutes from './routes/certificate.routes.js';
 import qrcodeRoutes from './routes/qrcode.routes.js';
 import configRoutes from './routes/config.routes.js';
 import webhookRoutes from './routes/webhook.routes.js';
+import checkoutRoutes from './routes/checkout.routes.js';
 
 const app = express();
 
@@ -92,6 +93,7 @@ app.use('/api', certificateRoutes); // Certificate generation routes
 app.use('/api', qrcodeRoutes); // QR code generation routes for merchants
 app.use('/api/config', configRoutes); // Global configuration management routes
 app.use('/api/webhooks', webhookRoutes); // E-commerce webhook configuration routes (test, config)
+app.use('/api/checkout', paymentRateLimiter, checkoutRoutes); // Section 1.2: E-commerce checkout with split payments
 
 // 404 handler - must be after all routes
 app.use(notFoundHandler);

@@ -345,6 +345,15 @@ class PaymentService {
           await this.handlePaymentCanceled(event.data.object as Stripe.PaymentIntent);
           break;
 
+        // Checkout Session events (Section 1.2: E-commerce split payments)
+        case 'checkout.session.completed':
+          await this.handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
+          break;
+
+        case 'checkout.session.expired':
+          console.log(`Checkout session expired: ${(event.data.object as Stripe.Checkout.Session).id}`);
+          break;
+
         // Stripe Connect account events
         case 'account.updated':
           await this.handleAccountUpdated(event.data.object as Stripe.Account);
@@ -417,6 +426,47 @@ class PaymentService {
     );
 
     console.log(`Payment canceled for transaction ${transactionId}`);
+  }
+
+  /**
+   * Handle checkout.session.completed webhook
+   * Section 1.2: E-commerce split payments
+   * This is called when a customer completes payment via Stripe Checkout
+   * Auto-creates transaction and user if not already done
+   */
+  private async handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+    // Only process if payment was successful
+    if (session.payment_status !== 'paid') {
+      console.log(`Checkout session ${session.id} not paid yet, skipping`);
+      return;
+    }
+
+    const metadata = session.metadata;
+    if (!metadata?.merchantId || !metadata?.orderId) {
+      console.log(`Checkout session ${session.id} missing required metadata (merchantId, orderId)`);
+      return;
+    }
+
+    try {
+      // Import checkout service dynamically to avoid circular dependency
+      const checkoutService = (await import('./checkout.service.js')).default;
+
+      // Complete the checkout - this creates user, transaction, and impact URL
+      const result = await checkoutService.completeCheckout({
+        merchantId: metadata.merchantId,
+        checkoutSessionId: session.id,
+        orderId: metadata.orderId,
+      });
+
+      console.log(`✅ Checkout session ${session.id} completed - Transaction: ${result.transactionId}, Impact: ${result.impactKg}kg`);
+    } catch (error: any) {
+      // If already completed (duplicate webhook), log and continue
+      if (error.message?.includes('already')) {
+        console.log(`Checkout session ${session.id} already processed`);
+        return;
+      }
+      console.error(`Failed to complete checkout session ${session.id}: ${error.message}`);
+    }
   }
 
   /**
