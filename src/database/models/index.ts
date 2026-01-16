@@ -15,6 +15,7 @@ import GlobalConfig from './GlobalConfig.js';
 import MagicLink from './MagicLink.js';
 import ConfigAuditLog from './ConfigAuditLog.js';
 import WalletAdjustment from './WalletAdjustment.js';
+import TransactionToken from './TransactionToken.js';
 
 // Define associations
 User.hasMany(Transaction, { foreignKey: 'userId', as: 'transactions' });
@@ -41,6 +42,9 @@ Transaction.belongsTo(SKU, { foreignKey: 'skuId', as: 'sku' });
 Transaction.belongsTo(Merchant, { foreignKey: 'merchantId', as: 'merchant' });
 Transaction.belongsTo(Partner, { foreignKey: 'partnerId', as: 'partner' });
 Transaction.belongsTo(GiftCardCode, { foreignKey: 'giftCardCodeId', as: 'giftCardCode' });
+Transaction.hasMany(TransactionToken, { foreignKey: 'transactionId', as: 'tokens' });
+
+TransactionToken.belongsTo(Transaction, { foreignKey: 'transactionId', as: 'transaction' });
 
 Wallet.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Wallet.belongsTo(Merchant, { foreignKey: 'merchantId', as: 'merchant' });
@@ -66,6 +70,7 @@ export {
   MagicLink,
   ConfigAuditLog,
   WalletAdjustment,
+  TransactionToken,
   PaymentMode,
   PaymentStatus,
 };
@@ -85,4 +90,5 @@ export default {
   MagicLink,
   ConfigAuditLog,
   WalletAdjustment,
+  TransactionToken,
 };

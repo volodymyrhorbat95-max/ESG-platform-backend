@@ -43,8 +43,8 @@ module.exports = {
       {
         id: uuidv4(),
         key: 'ALLOCATION_MULTIPLIER',
-        value: '1.6',
-        description: 'Impact multiplier for ALLOCATION payment mode. Formula: Impact (kg) = Amount (€) × ALLOCATION_MULTIPLIER',
+        value: '1.0',
+        description: 'DEPRECATED: No longer used. All payment modes now use the same formula: (amount / CURRENT_CSR_PRICE) * impactMultiplier. Per client clarification: "€1 generates 9,090 grams of removal. 1/0.11"',
         created_at: now,
         updated_at: now,
       },

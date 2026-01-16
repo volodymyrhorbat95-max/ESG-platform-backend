@@ -1,7 +1,8 @@
 // Transaction Service - Business logic for transaction processing
 // Handles ALL 4 SKU types: CLAIM, PAY, GIFT_CARD, ALLOCATION
 // CRITICAL: Impact calculated dynamically using CURRENT_CSR_PRICE from GlobalConfig
-// Formula: impactGrams = (amount / CURRENT_CSR_PRICE) * impactMultiplier * 1000
+// UNIVERSAL FORMULA (all modes): impactGrams = (amount / CURRENT_CSR_PRICE) * impactMultiplier * 1000
+// Per client clarification (conversation.txt line 682): "€1 generates 9,090 grams of removal. 1/0.11"
 
 import { Op } from 'sequelize';
 import { Transaction, SKU, User, GiftCardCode } from '../database/models/index.js';
@@ -43,28 +44,22 @@ interface CreateTransactionInput {
 
 class TransactionService {
   /**
-   * Calculate impact in grams - STANDARD FORMULA (for CLAIM, PAY, GIFT_CARD)
+   * Calculate impact in grams - UNIVERSAL FORMULA for ALL payment modes
    * Formula: (amount / CURRENT_CSR_PRICE) * impactMultiplier * 1000
    *
-   * Examples (with CSR_PRICE = €0.11/kg, multiplier = 1):
-   * - €25 gift card: (25 / 0.11) * 1 * 1000 = 227,272 grams
-   * - €2.50 pasta: (2.50 / 0.11) * 1 * 1000 = 22,727 grams
-   */
-  calculateStandardImpactGrams(amount: number, currentCSRPrice: number, impactMultiplier: number): number {
-    const impactKg = (amount / currentCSRPrice) * impactMultiplier;
-    return Math.round(impactKg * 1000);
-  }
-
-  /**
-   * Calculate impact in grams - SPECIAL ALLOCATION FORMULA
-   * Formula: amount × impactMultiplier × 1000 (does NOT use CSR_PRICE!)
+   * IMPORTANT: Client clarified (conversation.txt line 682):
+   * "€1 generates 9,090 grams of removal. 1/0.11"
+   * This means ALL modes (CLAIM, PAY, GIFT_CARD, ALLOCATION) use the SAME formula.
    *
-   * Examples (with multiplier = 1.6):
-   * - €5 allocation: 5 * 1.6 * 1000 = 8,000 grams (8 kg)
-   * - €15 allocation: 15 * 1.6 * 1000 = 24,000 grams (24 kg)
+   * Examples (with CSR_PRICE = €0.11/kg, multiplier = 1):
+   * - €25 gift card: (25 / 0.11) * 1 * 1000 = 227,272 grams (227.27 kg)
+   * - €10 gift card: (10 / 0.11) * 1 * 1000 = 90,909 grams (90.91 kg)
+   * - €5 allocation: (5 / 0.11) * 1 * 1000 = 45,454 grams (45.45 kg)
+   * - €15 allocation: (15 / 0.11) * 1 * 1000 = 136,363 grams (136.36 kg)
+   * - €2.50 pasta: (2.50 / 0.11) * 1 * 1000 = 22,727 grams (22.73 kg)
    */
-  calculateAllocationImpactGrams(amount: number, impactMultiplier: number): number {
-    const impactKg = amount * impactMultiplier;
+  calculateImpactGrams(amount: number, currentCSRPrice: number, impactMultiplier: number = 1.0): number {
+    const impactKg = (amount / currentCSRPrice) * impactMultiplier;
     return Math.round(impactKg * 1000);
   }
 
@@ -92,10 +87,10 @@ class TransactionService {
       throw new Error('This SKU is no longer active');
     }
 
-    // 2. Get global config values (CSR price, Master ID, thresholds, multipliers)
+    // 2. Get global config values (CSR price, Master ID, threshold)
+    // Note: ALLOCATION_MULTIPLIER is no longer used - all modes use same formula
     const currentCSRPrice = await configService.getCurrentCSRPrice();
     const masterId = await configService.getMasterId();
-    const allocationMultiplier = await configService.getAllocationMultiplier();
     const corsairThreshold = await configService.getCorsairThreshold();
 
     // 3. Determine transaction amount based on SKU type
@@ -139,24 +134,14 @@ class TransactionService {
         throw new Error(`Unknown payment mode: ${sku.paymentMode}`);
     }
 
-    // 4. Calculate impact in grams - DIFFERENT formulas based on payment mode
-    let calculatedImpact: number;
-    if (sku.paymentMode === PaymentMode.ALLOCATION) {
-      // ALLOCATION uses SPECIAL formula: amount × ALLOCATION_MULTIPLIER (from global config)
-      // Example: €5 × 1.6 = 8 kg = 8,000 grams
-      calculatedImpact = this.calculateAllocationImpactGrams(
-        transactionAmount,
-        allocationMultiplier
-      );
-    } else {
-      // CLAIM, PAY, GIFT_CARD use STANDARD formula: amount / CSR_PRICE × multiplier
-      // Example: €25 / 0.11 × 1 = 227.27 kg = 227,272 grams
-      calculatedImpact = this.calculateStandardImpactGrams(
-        transactionAmount,
-        currentCSRPrice,
-        Number(sku.impactMultiplier)
-      );
-    }
+    // 4. Calculate impact in grams - UNIVERSAL FORMULA for ALL payment modes
+    // Per client clarification: ALL modes use (amount / CSR_PRICE) * multiplier * 1000
+    // Example: €5 / 0.11 × 1 = 45.45 kg = 45,454 grams
+    const calculatedImpact = this.calculateImpactGrams(
+      transactionAmount,
+      currentCSRPrice,
+      Number(sku.impactMultiplier)
+    );
 
     // 5. Check if should flag for Corsair Connect (CORSAIR_THRESHOLD from global config)
     const corsairConnectFlag = transactionAmount >= corsairThreshold;
@@ -551,18 +536,18 @@ class TransactionService {
     }
 
     // 3. Get global config values
+    // Note: ALLOCATION_MULTIPLIER is no longer used - all modes use same formula
     const currentCSRPrice = await configService.getCurrentCSRPrice();
     const masterId = await configService.getMasterId();
-    const allocationMultiplier = await configService.getAllocationMultiplier();
     const corsairThreshold = await configService.getCorsairThreshold();
 
-    // 4. Calculate impact based on SKU payment mode
-    let calculatedImpact = 0;
-    if (sku.paymentMode === PaymentMode.ALLOCATION) {
-      calculatedImpact = this.calculateAllocationImpactGrams(input.amount, allocationMultiplier);
-    } else {
-      calculatedImpact = this.calculateStandardImpactGrams(input.amount, currentCSRPrice, sku.impactMultiplier);
-    }
+    // 4. Calculate impact - UNIVERSAL FORMULA for ALL payment modes
+    // Per client clarification: ALL modes use (amount / CSR_PRICE) * multiplier * 1000
+    const calculatedImpact = this.calculateImpactGrams(
+      input.amount,
+      currentCSRPrice,
+      Number(sku.impactMultiplier)
+    );
 
     // 5. Determine Corsair Connect flag
     const corsairConnectFlag = input.amount >= corsairThreshold;

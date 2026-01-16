@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { Merchant, SKU, User, Transaction } from '../database/models/index.js';
 import { WebhookPlatform } from '../database/models/Merchant.js';
 import transactionService from './transaction.service.js';
+import transactionTokenService from './transactionToken.service.js';
 import userService from './user.service.js';
 import qrcodeService from './qrcode.service.js';
 import emailService from './email.service.js';
@@ -174,12 +175,20 @@ class WebhookService {
   /**
    * Process webhook from e-commerce platform
    * Main entry point for webhook processing
+   *
+   * Flow:
+   * 1. Parse order data from platform-specific payload
+   * 2. Create/find user from order customer data
+   * 3. Create transactions for each line item
+   * 4. Generate secure tokens for each transaction (for Point B landing page)
+   * 5. Generate QR codes
+   * 6. Send confirmation emails with impact URLs
    */
   async processWebhook(
     merchantId: string,
     payload: any,
     platform: WebhookPlatform
-  ): Promise<{ success: boolean; transactionIds: string[]; qrCodes?: any[] }> {
+  ): Promise<{ success: boolean; transactionIds: string[]; qrCodes?: any[]; impactUrls?: string[] }> {
     console.log(`📦 Processing ${platform} webhook for merchant ${merchantId}`);
 
     // Find merchant
@@ -197,6 +206,7 @@ class WebhookService {
     // Process each line item as a separate transaction
     const transactionIds: string[] = [];
     const qrCodes: any[] = [];
+    const impactUrls: string[] = [];
 
     for (const item of processedOrder.items) {
       // Find SKU by code
@@ -218,7 +228,18 @@ class WebhookService {
 
       transactionIds.push(transaction.id);
 
+      // Section 20.4: Generate secure token for e-commerce landing page (Point B)
+      // This allows customers to access their personalized impact page without logging in
+      const token = await transactionTokenService.createToken(transaction.id);
+      const impactUrl = transactionTokenService.generateImpactUrl(
+        transaction.id,
+        token.token,
+        env.frontend.url
+      );
+      impactUrls.push(impactUrl);
+
       // Generate QR code for customer (they can verify their impact)
+      // QR code now points to the tokenized impact URL
       const qrCode = await qrcodeService.generateQRCode({
         merchantId: merchant.id,
         skuCode: sku.code,
@@ -230,11 +251,12 @@ class WebhookService {
         transactionId: transaction.id,
         sku: item.sku,
         qrCode: qrCode.qrCodeData,
-        targetUrl: qrCode.targetUrl,
+        targetUrl: impactUrl, // Use tokenized URL instead of generic QR target
+        token: token.token,
       });
     }
 
-    // Send confirmation email with QR codes
+    // Send confirmation email with impact URLs
     if (transactionIds.length > 0) {
       await this.sendOrderConfirmationEmail(user, transactionIds, qrCodes);
     }
@@ -245,6 +267,7 @@ class WebhookService {
       success: true,
       transactionIds,
       qrCodes,
+      impactUrls,
     };
   }
 

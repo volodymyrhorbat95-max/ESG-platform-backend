@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import transactionController from '../controllers/transaction.controller.js';
+import transactionTokenController from '../controllers/transactionToken.controller.js';
 import { requireAdmin } from '../middleware/adminAuth.js';
 
 const router = Router();
@@ -11,6 +12,14 @@ router.get('/', requireAdmin, transactionController.getAll); // Admin only - vie
 router.get('/user/:userId', transactionController.getByUserId); // User dashboard transactions
 router.get('/user/:userId/total-impact', transactionController.getUserTotalImpact); // User total impact
 router.get('/merchant/:merchantId', transactionController.getByMerchantId); // Merchant dashboard transactions
+
+// Section 20.4: E-commerce token-based access (PUBLIC - token IS the auth)
+// Used by e-commerce landing page: /landing?txn={transactionId}&token={token}
+router.get('/token/:transactionId/:token', transactionTokenController.getTransactionByToken);
+
+// Token generation (admin/webhook use)
+router.post('/:transactionId/generate-token', requireAdmin, transactionTokenController.generateToken);
+
 router.get('/:id', transactionController.getById); // Public - view single transaction (customer dashboard)
 router.put('/:id/payment-status', transactionController.updatePaymentStatus); // Webhook/internal use
 

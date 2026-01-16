@@ -43,6 +43,8 @@ module.exports = {
         requires_validation: false,
         corsair_threshold: '10.00',
         impact_multiplier: '1.00',
+        product_weight: '17.00', // 17g actual product weight
+        description: 'Standard deli receipt plastic neutralization - 1:1 compensation',
         merchant_id: MERCHANT_IDS.CONAD,
         partner_id: null,
         is_active: true,
@@ -58,6 +60,8 @@ module.exports = {
         requires_validation: false,
         corsair_threshold: '10.00',
         impact_multiplier: '1.00',
+        product_weight: '170.00', // 170g (17g x 10 for hero campaign)
+        description: 'Hero brand promotional campaign - 10X impact multiplier',
         merchant_id: MERCHANT_IDS.CONAD,
         partner_id: null,
         is_active: true,
@@ -73,6 +77,8 @@ module.exports = {
         requires_validation: false,
         corsair_threshold: '10.00',
         impact_multiplier: '1.00',
+        product_weight: '50.00', // 50g promotional impact
+        description: 'General promotional claim for marketing campaigns',
         merchant_id: null,
         partner_id: null,
         is_active: true,
@@ -80,7 +86,9 @@ module.exports = {
         updated_at: new Date(),
       },
 
-      // Case B: ALLOCATION - Merchant funded (amount in URL, impactMultiplier 1.6)
+      // Case B: ALLOCATION - Merchant funded (amount in URL)
+      // Per client clarification: ALL modes use same formula (amount / CSR_PRICE) * multiplier
+      // Example: €5 / 0.11 * 1.0 * 1000 = 45,454 grams (45.45 kg)
       // merchant_id: Deli owns this SKU
       {
         id: SKU_IDS.ALLOC_MERCHANT_5,
@@ -90,7 +98,9 @@ module.exports = {
         payment_mode: 'ALLOCATION',
         requires_validation: false,
         corsair_threshold: '10.00',
-        impact_multiplier: '1.60',
+        impact_multiplier: '1.00', // Changed from 1.60 - now uses standard formula
+        product_weight: null, // Dynamic - calculated from amount
+        description: 'Merchant-funded environmental allocation - €5 contribution',
         merchant_id: MERCHANT_IDS.DELI,
         partner_id: null,
         is_active: true,
@@ -105,7 +115,9 @@ module.exports = {
         payment_mode: 'ALLOCATION',
         requires_validation: false,
         corsair_threshold: '10.00',
-        impact_multiplier: '1.60',
+        impact_multiplier: '1.00', // Changed from 1.60 - now uses standard formula
+        product_weight: null, // Dynamic - calculated from amount
+        description: 'Merchant-funded environmental allocation - €15 contribution (certified asset)',
         merchant_id: MERCHANT_IDS.DELI,
         partner_id: null,
         is_active: true,
@@ -124,7 +136,9 @@ module.exports = {
         payment_mode: 'ALLOCATION',
         requires_validation: false,
         corsair_threshold: '10.00',
-        impact_multiplier: '1.60',
+        impact_multiplier: '1.00', // Changed from 1.60 - now uses standard formula
+        product_weight: null, // Dynamic - amount passed via URL parameter
+        description: 'E-commerce checkout integration - variable amount from partner website',
         merchant_id: MERCHANT_IDS.ALTROMERCATO,
         partner_id: PARTNER_IDS.ECO_ALLIANCE,
         is_active: true,
@@ -143,6 +157,8 @@ module.exports = {
         requires_validation: false,
         corsair_threshold: '10.00',
         impact_multiplier: '1.00',
+        product_weight: null, // Not physical product - payment based
+        description: 'Small merchant environmental fee - paid via Stripe at checkout',
         merchant_id: MERCHANT_IDS.DELI,
         partner_id: null,
         is_active: true,
@@ -161,6 +177,8 @@ module.exports = {
         requires_validation: true,
         corsair_threshold: '10.00',
         impact_multiplier: '1.00',
+        product_weight: null, // Not physical product
+        description: 'Physical gift card - €25 value, certified asset status',
         merchant_id: MERCHANT_IDS.GIANNETTO,
         partner_id: null,
         is_active: true,
@@ -176,6 +194,8 @@ module.exports = {
         requires_validation: true,
         corsair_threshold: '10.00',
         impact_multiplier: '1.00',
+        product_weight: null, // Not physical product
+        description: 'Physical gift card - €10 value, threshold for certified asset',
         merchant_id: MERCHANT_IDS.GIANNETTO,
         partner_id: null,
         is_active: true,
@@ -191,6 +211,8 @@ module.exports = {
         requires_validation: true,
         corsair_threshold: '10.00',
         impact_multiplier: '1.00',
+        product_weight: null, // Not physical product
+        description: 'Physical gift card - €5 value, accumulation phase',
         merchant_id: MERCHANT_IDS.GIANNETTO,
         partner_id: null,
         is_active: true,

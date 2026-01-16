@@ -11,26 +11,31 @@ module.exports = {
     await queryInterface.bulkInsert('wallets', [
       // User wallets - values match seeded transactions
       // MARIO_ROSSI: 1 CLAIM transaction = 17.27g (from 0.0019 / 0.11 * 1000)
+      // Amount spent: €0.0019 (below €10 threshold)
       {
         id: uuidv4(),
         user_id: USER_IDS.MARIO_ROSSI,
         merchant_id: null,
-        total_accumulated: '17.27', // From CLAIM transaction (0.0019 / 0.11 * 1000 = 17.27g) - string for DECIMAL precision
+        total_accumulated: '17.27', // From CLAIM transaction (0.0019 / 0.11 * 1000 = 17.27g)
         total_redeemed: '0.00',
         current_balance: '17.27',
+        total_amount_spent: '0.00', // CLAIM is prepaid - no user payment
+        certified_asset_status: false, // Below €10 threshold
         created_at: new Date(),
         updated_at: new Date(),
       },
-      // GIULIA_BIANCHI: 1 PAY (22727.27g) + 1 ALLOCATION (24000g) = 46727.27g
-      // PAY uses standard formula: (2.5 / 0.11) * 1 * 1000 = 22727.27g
-      // ALLOCATION uses SPECIAL formula: 15 × 1.6 × 1000 = 24000g
+      // GIULIA_BIANCHI: 1 PAY (€2.50) + 1 ALLOCATION (€15) = €17.50 total
+      // PAY: (2.5 / 0.11) * 1000 = 22727.27g
+      // ALLOCATION: (15 / 0.11) * 1000 = 136363.64g (using standard formula now)
       {
         id: uuidv4(),
         user_id: USER_IDS.GIULIA_BIANCHI,
         merchant_id: null,
-        total_accumulated: '46727.27', // PAY: 22727.27g + ALLOCATION: 24000g - string for DECIMAL precision
+        total_accumulated: '159090.91', // PAY: 22727.27g + ALLOCATION: 136363.64g
         total_redeemed: '0.00',
-        current_balance: '46727.27',
+        current_balance: '159090.91',
+        total_amount_spent: '17.50', // €2.50 (PAY) + €15 (ALLOCATION) = €17.50
+        certified_asset_status: true, // Above €10 threshold - certified asset
         created_at: new Date(),
         updated_at: new Date(),
       },
@@ -42,6 +47,8 @@ module.exports = {
         total_accumulated: '0.00',
         total_redeemed: '0.00',
         current_balance: '0.00',
+        total_amount_spent: '0.00',
+        certified_asset_status: false,
         created_at: new Date(),
         updated_at: new Date(),
       },
@@ -54,6 +61,8 @@ module.exports = {
         total_accumulated: '50000.00',
         total_redeemed: '10000.00',
         current_balance: '40000.00',
+        total_amount_spent: '0.00', // Merchant wallets track prepaid credits, not spending
+        certified_asset_status: false, // Not applicable to merchants
         created_at: new Date(),
         updated_at: new Date(),
       },
@@ -64,6 +73,8 @@ module.exports = {
         total_accumulated: '15000.00',
         total_redeemed: '5000.00',
         current_balance: '10000.00',
+        total_amount_spent: '0.00',
+        certified_asset_status: false,
         created_at: new Date(),
         updated_at: new Date(),
       },
@@ -74,6 +85,8 @@ module.exports = {
         total_accumulated: '25000.00',
         total_redeemed: '8000.00',
         current_balance: '17000.00',
+        total_amount_spent: '0.00',
+        certified_asset_status: false,
         created_at: new Date(),
         updated_at: new Date(),
       },
@@ -84,6 +97,8 @@ module.exports = {
         total_accumulated: '100000.00',
         total_redeemed: '30000.00',
         current_balance: '70000.00',
+        total_amount_spent: '0.00',
+        certified_asset_status: false,
         created_at: new Date(),
         updated_at: new Date(),
       },

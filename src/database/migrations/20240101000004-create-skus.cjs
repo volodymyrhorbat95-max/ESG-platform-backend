@@ -69,6 +69,16 @@ module.exports = {
         onDelete: 'SET NULL',
         comment: 'Merchant that owns this SKU',
       },
+      product_weight: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: true,
+        comment: 'Actual grams for physical products (e.g., 17g pasta, 170g for 10x campaign)',
+      },
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+        comment: 'Merchant-facing description of the SKU',
+      },
       is_active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

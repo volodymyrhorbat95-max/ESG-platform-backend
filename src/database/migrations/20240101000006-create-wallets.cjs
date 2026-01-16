@@ -44,6 +44,18 @@ module.exports = {
         allowNull: false,
         defaultValue: 0,
       },
+      total_amount_spent: {
+        type: Sequelize.DECIMAL(10, 2),
+        allowNull: false,
+        defaultValue: 0,
+        comment: 'Total euros spent across all transactions (for €10 threshold tracking)',
+      },
+      certified_asset_status: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+        comment: 'True if totalAmountSpent >= CORSAIR_THRESHOLD (certified asset unlocked)',
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
