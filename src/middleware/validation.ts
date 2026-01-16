@@ -3,13 +3,15 @@ import { AppError } from './errorHandler.js';
 
 /**
  * Validate required fields in request body
+ * Note: Uses explicit undefined/null check to properly handle boolean false values
  */
 export const validateRequiredFields = (fields: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     const missingFields: string[] = [];
 
     for (const field of fields) {
-      if (!req.body[field]) {
+      // Use explicit check for undefined/null to properly handle boolean false values
+      if (req.body[field] === undefined || req.body[field] === null) {
         missingFields.push(field);
       }
     }

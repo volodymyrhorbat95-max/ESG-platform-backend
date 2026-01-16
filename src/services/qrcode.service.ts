@@ -10,9 +10,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 interface QRCodeGenerationOptions {
-  merchantId: string;
   skuCode: string;
   baseUrl: string; // From env: FRONTEND_URL
+  merchantId?: string; // Merchant attribution
+  partnerId?: string; // Partner attribution (for royalty tracking)
+  amount?: number; // For ALLOCATION type SKUs
   format?: 'png' | 'svg' | 'pdf'; // Default: 'png'
   includeLogo?: boolean; // Default: false
 }
@@ -35,14 +37,30 @@ class QRCodeService {
   }
 
   async generateQRCode(options: QRCodeGenerationOptions): Promise<QRCodeResponse> {
-    const { merchantId, skuCode, baseUrl, format = 'png', includeLogo = false } = options;
+    const { skuCode, baseUrl, merchantId, partnerId, amount, format = 'png', includeLogo = false } = options;
 
     // Construct target URL with query parameters
-    // Format: https://csr26.it/landing?sku=GC-25EUR&merchant=xxx
+    // Section 15.1: Format: https://csr26.it/landing?sku=SKU_CODE&amount=X&partner=PARTNER_ID
     const cleanBaseUrl = baseUrl.replace(/\/$/, '');
-    const targetUrl = `${cleanBaseUrl}/landing?sku=${encodeURIComponent(skuCode)}&merchant=${encodeURIComponent(merchantId)}`;
 
-    const downloadFileName = `QR_${merchantId}_${skuCode}_${Date.now()}.${format}`;
+    // Build URL parameters
+    const params = new URLSearchParams();
+    params.append('sku', skuCode);
+    if (amount !== undefined && amount > 0) {
+      params.append('amount', amount.toString());
+    }
+    if (partnerId) {
+      params.append('partner', partnerId);
+    }
+    if (merchantId) {
+      params.append('merchant', merchantId);
+    }
+
+    const targetUrl = `${cleanBaseUrl}/landing?${params.toString()}`;
+
+    // Generate filename with available identifiers
+    const identifier = merchantId || partnerId || 'general';
+    const downloadFileName = `QR_${identifier}_${skuCode}_${Date.now()}.${format}`;
 
     // Generate based on format
     switch (format) {
@@ -271,16 +289,21 @@ class QRCodeService {
 
   /**
    * Generate multiple QR codes at once (bulk)
+   * Section 15.1: Supports all URL parameters (sku, amount, partner, merchant)
    */
   async generateBulkQRCodes(
-    merchantId: string,
     skuCodes: string[],
     baseUrl: string,
-    format: 'png' | 'svg' | 'pdf' = 'png',
-    includeLogo: boolean = false
+    options: {
+      merchantId?: string;
+      partnerId?: string;
+      format?: 'png' | 'svg' | 'pdf';
+      includeLogo?: boolean;
+    } = {}
   ): Promise<QRCodeResponse[]> {
+    const { merchantId, partnerId, format = 'png', includeLogo = false } = options;
     const promises = skuCodes.map(skuCode =>
-      this.generateQRCode({ merchantId, skuCode, baseUrl, format, includeLogo })
+      this.generateQRCode({ skuCode, baseUrl, merchantId, partnerId, format, includeLogo })
     );
     return await Promise.all(promises);
   }

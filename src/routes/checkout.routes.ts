@@ -7,6 +7,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import checkoutController from '../controllers/checkout.controller.js';
 import { Merchant } from '../database/models/index.js';
+import { env } from '../config/env.js';
 
 const router = Router();
 
@@ -50,16 +51,26 @@ const validateMerchant = async (req: Request, res: Response, next: NextFunction)
 };
 
 /**
- * Optional: API Key authentication for production
- * Merchants can use their webhookSecret as an API key
+ * API Key authentication for checkout endpoints
+ * Merchants use their webhookSecret as an API key
+ * SECURITY: Required in production, optional in development
  */
 const validateApiKey = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const apiKey = req.headers['x-api-key'] as string;
     const merchantId = req.body.merchantId || req.query.merchantId;
+    const isProduction = env.nodeEnv === 'production';
 
     if (!apiKey) {
-      // If no API key, just validate merchant exists (for development)
+      // In production, API key is REQUIRED for secure endpoints
+      if (isProduction) {
+        return res.status(401).json({
+          success: false,
+          error: 'API key required. Include x-api-key header with your webhookSecret.',
+        });
+      }
+      // In development, allow requests without API key for testing
+      console.warn('⚠️ Development mode: Checkout request without API key validation');
       return next();
     }
 

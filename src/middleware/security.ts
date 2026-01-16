@@ -87,6 +87,19 @@ export const paymentRateLimiter = rateLimit({
 });
 
 /**
+ * Rate limiting for token validation endpoint
+ * Section 20.4: Prevents token enumeration attacks on e-commerce landing pages
+ * Allows 50 requests per 15 minutes per IP (generous for legitimate use)
+ */
+export const tokenValidationRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // Limit each IP to 50 token validation requests per windowMs
+  message: 'Too many requests to this resource, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+/**
  * CSRF Token Validation Middleware
  * Section 17.4: CSRF protection
  *

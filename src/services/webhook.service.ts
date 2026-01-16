@@ -394,21 +394,32 @@ class WebhookService {
   }
 
   /**
-   * Send order confirmation email with QR codes
+   * Send order confirmation email with QR codes and impact URLs
+   * Section 20.4: Includes tokenized impact URL for Point B (Thank You Page)
    */
   private async sendOrderConfirmationEmail(
     user: User,
     transactionIds: string[],
     qrCodes: any[]
   ): Promise<void> {
-    // For now, send individual transaction confirmations
-    // TODO: Create a combined order confirmation email template
+    // Create a map of transaction IDs to impact URLs from QR codes
+    const impactUrlMap = new Map<string, string>();
+    for (const qr of qrCodes) {
+      if (qr.transactionId && qr.targetUrl) {
+        impactUrlMap.set(qr.transactionId, qr.targetUrl);
+      }
+    }
+
+    // Send individual transaction confirmations with impact URLs
     for (const transactionId of transactionIds) {
       const transaction = await Transaction.findByPk(transactionId, {
         include: [{ model: SKU, as: 'sku' }],
       });
 
       if (transaction) {
+        // Get the impact URL for this transaction (Section 20.4: Point B)
+        const impactUrl = impactUrlMap.get(transactionId);
+
         await emailService.sendTransactionConfirmation(
           user.email,
           `${user.firstName} ${user.lastName}`,
@@ -420,12 +431,14 @@ class WebhookService {
             sku: { code: transaction.sku.code, name: transaction.sku.name },
             amount: Number(transaction.amount),
           },
-          user.id
+          user.id,
+          undefined, // certificateUrl
+          impactUrl  // Section 20.4: Tokenized URL for e-commerce landing page
         );
       }
     }
 
-    console.log(`✅ Sent order confirmation emails for ${transactionIds.length} transactions`);
+    console.log(`✅ Sent order confirmation emails for ${transactionIds.length} transactions with impact URLs`);
   }
 
   /**

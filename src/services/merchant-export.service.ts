@@ -177,8 +177,9 @@ class MerchantExportService {
 
       doc.moveDown(0.5);
 
+      // Section 20.1: Use "Corsair Connect" (not "Amplivo" in user-facing text)
       doc.text(
-        `Our partnership with Amplivo ensures that plastic waste is intercepted before it reaches vulnerable ocean environments, ` +
+        `Our partnership with Corsair Connect ensures that plastic waste is intercepted before it reaches vulnerable ocean environments, ` +
         `particularly in high-risk coastal regions. Each gram of plastic removed prevents harm to marine life, protects coastal ` +
         `ecosystems, and contributes to the global effort to combat ocean plastic pollution.`,
         { align: 'justify', lineGap: 4 }

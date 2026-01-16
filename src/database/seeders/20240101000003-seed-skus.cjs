@@ -8,7 +8,7 @@ const { MERCHANT_IDS } = require('./20240101000002-seed-merchants.cjs');
 const SKU_IDS = {
   // Case A: CLAIM (prepaid lot, email only)
   LOT_CONAD_01: '5c000001-0001-0001-0001-000000000001',
-  CLAIM_CONAD_PROMO: '5c000001-0001-0001-0001-000000000010',
+  LOT_CONAD_10X: '5c000001-0001-0001-0001-000000000010', // Section 6.2: Hero campaign SKU
   PROMO_GENERAL: '5c000001-0001-0001-0001-000000000009',
 
   // Case B/C: ALLOCATION (merchant-funded, amount in URL)
@@ -51,17 +51,18 @@ module.exports = {
         created_at: new Date(),
         updated_at: new Date(),
       },
+      // Section 6.2: LOT-CONAD-10X - Hero campaign SKU (10:1 compensation)
       {
-        id: SKU_IDS.CLAIM_CONAD_PROMO,
-        code: 'CLAIM-CONAD-PROMO',
-        name: 'Conad 10X Promotional Claim',
-        price: '0.0187', // €0.0187 = ~170g plastic impact (10X campaign)
+        id: SKU_IDS.LOT_CONAD_10X,
+        code: 'LOT-CONAD-10X',
+        name: 'Conad 10X Hero Campaign Receipt',
+        price: '0.0187', // €0.0187 = ~170g plastic impact (10:1 hero campaign)
         payment_mode: 'CLAIM',
         requires_validation: false,
         corsair_threshold: '10.00',
-        impact_multiplier: '1.00',
+        impact_multiplier: '1.00', // Multiplier is 1.0 because price already reflects 10x
         product_weight: '170.00', // 170g (17g x 10 for hero campaign)
-        description: 'Hero brand promotional campaign - 10X impact multiplier',
+        description: 'Hero brand promotional campaign - 10:1 compensation (17g product → 170g impact)',
         merchant_id: MERCHANT_IDS.CONAD,
         partner_id: null,
         is_active: true,

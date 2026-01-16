@@ -4,9 +4,14 @@
 import { User, Transaction, SKU, Merchant } from '../database/models/index.js';
 import { RegistrationLevel } from '../database/models/User.js';
 
-// Input for minimal registration (CLAIM type - email only)
+// Input for minimal registration (CLAIM type - email required, name optional)
+// Section 3.1: Minimal Registration (for CLAIM mode below €10):
+// - Email only (required)
+// - Optional: First Name, Last Name
 interface MinimalRegistrationData {
   email: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 // Input for standard registration (email + name)
@@ -43,19 +48,29 @@ interface UpdateUserData {
 }
 
 class UserService {
-  // Create or find user with minimal registration (email only)
+  // Create or find user with minimal registration (email required, name optional)
   // Used for CLAIM type transactions
+  // Section 3.1: Minimal Registration - email required, firstName/lastName optional
   async findOrCreateMinimalUser(data: MinimalRegistrationData): Promise<User> {
     // Check if user exists by email
     let user = await User.findOne({ where: { email: data.email } });
 
     if (user) {
+      // If optional name fields provided, update user if they're currently empty
+      if ((data.firstName || data.lastName) && (!user.firstName || !user.lastName)) {
+        await user.update({
+          firstName: data.firstName || user.firstName,
+          lastName: data.lastName || user.lastName,
+        });
+      }
       return user;
     }
 
-    // Create minimal user with only email
+    // Create minimal user with email and optional name fields
     user = await User.create({
       email: data.email,
+      firstName: data.firstName || null,
+      lastName: data.lastName || null,
       registrationLevel: 'minimal',
       corsairConnectFlag: false,
     });

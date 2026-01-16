@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { logger } from '../utils/logger.js';
 
 /**
  * Custom error class for application errors
@@ -47,14 +48,18 @@ export const errorHandler = (
     message = err.message;
   }
 
-  // Log error details in development
-  if (process.env.NODE_ENV === 'development') {
-    console.error('Error:', {
-      name: err.name,
-      message: err.message,
-      stack: err.stack,
-    });
-  }
+  // Section 19.3: Log all errors for monitoring and alerting
+  logger.error(
+    `${req.method} ${req.originalUrl} - ${message}`,
+    err,
+    'ErrorHandler',
+    {
+      statusCode,
+      method: req.method,
+      path: req.originalUrl,
+      userAgent: req.get('user-agent'),
+    }
+  );
 
   // Send error response
   res.status(statusCode).json({

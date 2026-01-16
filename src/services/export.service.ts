@@ -90,7 +90,7 @@ class ExportService {
       'SKU Name': transaction.sku.name,
       'Payment Mode': transaction.sku.paymentMode,
       'Amount (EUR)': Number(transaction.amount).toFixed(2),
-      'Impact (grams)': Number(transaction.calculatedImpact).toFixed(2),
+      'Impact (kg)': (Number(transaction.calculatedImpact) / 1000).toFixed(2),
       'Master ID': transaction.masterId,
       'Merchant ID': transaction.merchantId || 'N/A',
       'Merchant Name': transaction.merchant?.name || 'N/A',
@@ -189,7 +189,7 @@ class ExportService {
       'User Email': t.user.email,
       'SKU Code': t.sku.code,
       'Amount (EUR)': Number(t.amount).toFixed(2),
-      'Impact (grams)': Number(t.calculatedImpact).toFixed(2),
+      'Impact (kg)': (Number(t.calculatedImpact) / 1000).toFixed(2),
       'Payment Status': t.paymentStatus,
     }));
 
@@ -200,12 +200,12 @@ class ExportService {
       'User Email': `${totalTransactions} transactions`,
       'SKU Code': '',
       'Amount (EUR)': totalAmount.toFixed(2),
-      'Impact (grams)': totalImpact.toFixed(2),
+      'Impact (kg)': (totalImpact / 1000).toFixed(2),
       'Payment Status': 'n/a' as any,
     });
 
     // Log partner report completion
-    console.log(`✅ Partner report completed - ${totalTransactions} transactions, Total: €${totalAmount.toFixed(2)}, Impact: ${totalImpact.toFixed(2)}g`);
+    console.log(`✅ Partner report completed - ${totalTransactions} transactions, Total: €${totalAmount.toFixed(2)}, Impact: ${(totalImpact / 1000).toFixed(2)}kg`);
 
     if (format === 'xlsx') {
       return this.generateExcel(exportData);

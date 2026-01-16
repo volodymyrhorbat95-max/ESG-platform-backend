@@ -6,10 +6,11 @@ import userService from '../services/user.service.js';
 import authService from '../services/auth.service.js';
 
 class UserController {
-  // POST /api/users/register/minimal - Minimal registration (email only)
+  // POST /api/users/register/minimal - Minimal registration (email required, name optional)
+  // Section 3.1: Minimal Registration - email required, firstName/lastName optional
   async registerMinimal(req: Request, res: Response, next: NextFunction) {
     try {
-      const { email } = req.body;
+      const { email, firstName, lastName } = req.body;
       if (!email) {
         return res.status(400).json({
           success: false,
@@ -17,7 +18,7 @@ class UserController {
         });
       }
 
-      const user = await userService.findOrCreateMinimalUser({ email });
+      const user = await userService.findOrCreateMinimalUser({ email, firstName, lastName });
 
       // Generate session token for auto-login
       const sessionToken = authService.generateSessionToken({

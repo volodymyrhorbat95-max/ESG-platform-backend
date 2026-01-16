@@ -66,9 +66,61 @@ app.use(csrfProtection);
 // Section 17.4: General rate limiting for all API endpoints
 app.use(generalRateLimiter);
 
-// Health check endpoint
+// Section 18.3: Health check endpoint (basic)
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
+// Section 18.3: Detailed monitoring endpoint (for error logging and monitoring)
+app.get('/health/detailed', async (req, res) => {
+  try {
+    // Check database connection
+    let dbStatus = 'unknown';
+    let dbLatency = 0;
+    try {
+      const startTime = Date.now();
+      await sequelize.authenticate();
+      dbLatency = Date.now() - startTime;
+      dbStatus = 'connected';
+    } catch {
+      dbStatus = 'disconnected';
+    }
+
+    // System info
+    const memoryUsage = process.memoryUsage();
+    const uptimeSeconds = process.uptime();
+
+    res.json({
+      status: dbStatus === 'connected' ? 'healthy' : 'degraded',
+      timestamp: new Date().toISOString(),
+      version: process.env.npm_package_version || '1.0.0',
+      environment: env.nodeEnv,
+      uptime: {
+        seconds: Math.floor(uptimeSeconds),
+        formatted: `${Math.floor(uptimeSeconds / 3600)}h ${Math.floor((uptimeSeconds % 3600) / 60)}m ${Math.floor(uptimeSeconds % 60)}s`,
+      },
+      database: {
+        status: dbStatus,
+        latencyMs: dbLatency,
+      },
+      memory: {
+        heapUsedMB: Math.round(memoryUsage.heapUsed / 1024 / 1024),
+        heapTotalMB: Math.round(memoryUsage.heapTotal / 1024 / 1024),
+        rssMB: Math.round(memoryUsage.rss / 1024 / 1024),
+      },
+      node: {
+        version: process.version,
+        platform: process.platform,
+        arch: process.arch,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      status: 'error',
+      timestamp: new Date().toISOString(),
+      error: error.message,
+    });
+  }
 });
 
 // API Routes

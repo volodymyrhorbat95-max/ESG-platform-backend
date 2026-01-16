@@ -97,7 +97,7 @@ SKU.init(
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       defaultValue: 1.0,
-      comment: 'Multiplier for ALLOCATION type (e.g., 1.6 for amount × 1.6). Standard flows use CURRENT_CSR_PRICE.',
+      comment: 'Multiplier for special campaigns (e.g., 10x hero brand). ALL modes use formula: (amount / CSR_PRICE) * multiplier. Default 1.0.',
     },
     productWeight: {
       type: DataTypes.DECIMAL(10, 2),

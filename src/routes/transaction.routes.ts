@@ -2,6 +2,7 @@ import { Router } from 'express';
 import transactionController from '../controllers/transaction.controller.js';
 import transactionTokenController from '../controllers/transactionToken.controller.js';
 import { requireAdmin } from '../middleware/adminAuth.js';
+import { tokenValidationRateLimiter } from '../middleware/security.js';
 
 const router = Router();
 
@@ -15,7 +16,8 @@ router.get('/merchant/:merchantId', transactionController.getByMerchantId); // M
 
 // Section 20.4: E-commerce token-based access (PUBLIC - token IS the auth)
 // Used by e-commerce landing page: /landing?txn={transactionId}&token={token}
-router.get('/token/:transactionId/:token', transactionTokenController.getTransactionByToken);
+// Rate limited to prevent token enumeration attacks
+router.get('/token/:transactionId/:token', tokenValidationRateLimiter, transactionTokenController.getTransactionByToken);
 
 // Token generation (admin/webhook use)
 router.post('/:transactionId/generate-token', requireAdmin, transactionTokenController.generateToken);

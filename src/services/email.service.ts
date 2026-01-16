@@ -37,7 +37,7 @@ class EmailService {
       const { data, error } = await this.resend.emails.send({
         from: this.fromEmail,
         to: email,
-        subject: 'Access Your CSR26 Dashboard',
+        subject: 'Your CSR26 Login Link',
         html: `
           <!DOCTYPE html>
           <html>
@@ -187,6 +187,7 @@ class EmailService {
   /**
    * Send transaction confirmation email
    * Section 15.2: Sent after every completed transaction
+   * Section 20.4: Includes impact URL for e-commerce flow (Point B)
    */
   async sendTransactionConfirmation(
     email: string,
@@ -200,7 +201,8 @@ class EmailService {
       amount: number;
     },
     userId: string,
-    certificateUrl?: string
+    certificateUrl?: string,
+    impactUrl?: string // Section 20.4: Tokenized URL for e-commerce landing page
   ): Promise<void> {
     if (!this.resend) {
       console.log('📧 Email disabled - Transaction confirmation would be sent to:', email);
@@ -288,12 +290,29 @@ class EmailService {
                       </tr>
                     </table>
 
+                    <!-- Impact URL (Section 20.4: E-commerce Point B) -->
+                    ${impactUrl ? `
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 24px; background-color: #ecfdf5; border-radius: 8px; border: 1px solid #10b981;">
+                      <tr>
+                        <td style="padding: 20px; text-align: center;">
+                          <p style="margin: 0 0 12px; color: #047857; font-size: 14px; font-weight: 600;">🌊 View Your Environmental Impact</p>
+                          <p style="margin: 0 0 16px; color: #065f46; font-size: 13px; line-height: 1.5;">
+                            Click below to see the real impact your purchase has made on plastic removal.
+                          </p>
+                          <a href="${impactUrl}" style="display: inline-block; padding: 14px 28px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);">
+                            View My Impact
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                    ` : ''}
+
                     <!-- Dashboard Link -->
                     <table width="100%" cellpadding="0" cellspacing="0" style="margin: 0 0 24px;">
                       <tr>
                         <td align="center" style="padding: 12px 0;">
-                          <a href="${dashboardLink}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);">
-                            View Your Dashboard
+                          <a href="${dashboardLink}" style="display: inline-block; padding: 16px 32px; background: ${impactUrl ? '#6b7280' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)'}; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);">
+                            ${impactUrl ? 'View Full Dashboard' : 'View Your Dashboard'}
                           </a>
                         </td>
                       </tr>

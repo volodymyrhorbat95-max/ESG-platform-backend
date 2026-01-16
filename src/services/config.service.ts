@@ -65,9 +65,17 @@ class ConfigService {
   }
 
   /**
-   * Get ALLOCATION_MULTIPLIER for ALLOCATION payment mode
-   * Used in special impact formula: Impact (kg) = Amount (€) × ALLOCATION_MULTIPLIER
-   * @returns Allocation multiplier as number (e.g., 1.6)
+   * Get ALLOCATION_MULTIPLIER - DEPRECATED
+   *
+   * NOTE: This global multiplier is NO LONGER USED in impact calculations.
+   * Per client clarification, ALL payment modes (CLAIM, PAY, GIFT_CARD, ALLOCATION)
+   * now use the SAME universal formula: Impact (kg) = Amount / CURRENT_CSR_PRICE
+   *
+   * The SKU-level impactMultiplier field is used for special campaigns (like 10x hero brand)
+   * where the product's physical weight is multiplied, NOT for changing the base formula.
+   *
+   * @deprecated Use SKU.impactMultiplier instead for special campaign multipliers
+   * @returns Allocation multiplier as number (default 1.0)
    */
   async getAllocationMultiplier(): Promise<number> {
     const value = await this.getValue('ALLOCATION_MULTIPLIER');

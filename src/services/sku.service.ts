@@ -23,12 +23,14 @@ interface UpdateSKUData extends Partial<CreateSKUData> {
 
 class SKUService {
   // Create new SKU
+  // NOTE: impactMultiplier defaults to 1.0 (standard). Only use higher values for special campaigns (e.g., 10x hero brand).
+  // The old 1.6 ALLOCATION_MULTIPLIER was SUPERSEDED - all modes now use: (amount / CSR_PRICE) * multiplier
   async createSKU(data: CreateSKUData) {
     try {
       const sku = await SKU.create({
         ...data,
         corsairThreshold: data.corsairThreshold ?? 10,
-        impactMultiplier: data.impactMultiplier ?? 1.6,
+        impactMultiplier: data.impactMultiplier ?? 1.0,
       });
       return sku;
     } catch (error: any) {
@@ -107,7 +109,9 @@ class SKUService {
     return results;
   }
 
-  // Calculate impact for ALLOCATION type (amount × multiplier = kg)
+  // DEPRECATED: This method uses outdated formula
+  // Use transaction.service.ts calculateImpactGrams() instead which uses:
+  // (amount / CURRENT_CSR_PRICE) * impactMultiplier * 1000 = grams
   calculateAllocationImpact(amount: number, multiplier: number): number {
     return amount * multiplier;
   }
